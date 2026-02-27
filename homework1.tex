@@ -1,0 +1,217 @@
+\documentclass{article}
+\usepackage{shortex}
+\usepackage[margin=1in]{geometry}
+
+\title{STAT 547E - Homework 1}
+\author{Zachary Lau}
+\date{\today}
+
+\begin{document}
+\maketitle
+\section{Problem 1}
+    % Question 1
+    \begin{enumerate}
+        \item % 1-a
+        To write down the joint kernel we consider the two ways that we can move
+        from the state $(x,y)$ to $(x',y')$ these are 
+        \begin{itemize}
+            \item Draw $x'$ from $K(x,\cdot)$
+            \item Draw $y'$ from $\eta(\cdot)$
+            \item Reject the swap. This happens with probability
+            \begin{align}
+                1 - \alpha(x',y') &= 1 - \min\left\{1, \frac{w(y')}{w(x')}\right\} \\ 
+                &= 1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}
+            \end{align}
+        \end{itemize}
+        and
+        \begin{itemize}
+            \item Draw $y'$ from $K(x,\cdot)$
+            \item Draw $x'$ from $\eta(\cdot)$
+            \item Accept the swap. This happens with probability
+            \begin{align}
+                \alpha(y', x') &= \min\left\{1, \frac{w(x')}{w(y')} \right\} \\
+                &= \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} 
+            \end{align}
+        \end{itemize}
+        Combining the two, we get the expanded kernel
+        \begin{align}
+            \bar K \left((x,y),\d(x',y')\right) =
+            K(x,\d x')\eta(\d y')
+            \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right]
+            + \\
+            K(x,\d y')\eta(\d x')
+            \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} 
+        \end{align}
+        We note that we have sligtly abused notation to let $\eta$ refer to both
+        a density (in the accetpance weights) and a measure (outside them).
+        \item % 1-b
+        We show invariance directly from the definition (note we only have
+        detailed balance if $K$ has detailed balance). Let 
+        $\pi$ refer to both a measure and the density $\frac{\gamma(x)}{Z}$. We
+        see that the joint distribution over $((x, y),(x', y'))$ is give by
+        \begin{align}
+            \bar \pi ((\d x,\d y))\bar K \left((x,y),(\d x', \d y')\right) &=
+            \pi(\d x)\eta(\d y)
+            K(x,\d x')\eta(\d y')
+            \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] \\
+            &+ 
+            \pi(\d x)\eta(\d y)K(x,\d y')\eta(\d x')
+            \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} 
+        \end{align}
+        We can integate the summands one at a time (note both are almost-surely
+        non-negative). Consider firstly the second
+        summand
+        \begin{align}
+            S_2 = \pi (\d x)\eta(\d y) K(x, \d y') \eta(\d x')  \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} \\
+        \end{align}
+        We use Fubini (these are all positive meaures)
+        and marginalize over $x$ first. Note that $K$ is stationary
+        for $\pi$ so $\int \pi(\d x)K(x,\d y') = \pi(\d y')$.
+        Furthermore, the only factors depending on $x$ are $\pi(\d x)$ and
+        $K(x, \d y')$.
+        \begin{align}
+            \int_{\mathcal X} S_2 &= 
+            \eta(\d y)\eta(\d x') \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} 
+            \int \pi(\d x)K(x, \d y') \\ 
+            &=  \eta(\d y)\eta(\d x') \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}
+                \pi(\d y')
+        \end{align} 
+        The only factor dependig on $y$ is $\eta (\d y)$ so marginalizing over
+        this we get 
+        \[
+            \int_{\mathcal X \times \mathcal Y} S_2 = 
+                \eta(\d x') \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}
+                \pi(\d y')
+        \]
+        Noting that $\eta(\d x ') = \eta(x') \d x'$ and
+        $\pi (\d y') = \frac{\gamma(y')}{Z}$ we can further simplify
+        \begin{align}
+            \int_{\mathcal X \times \mathcal Y} S_2 =
+                \frac 1 Z \min\left\{\gamma(y')\eta(x'), \gamma(x')\eta(y') \right\}
+        \end{align}
+        Similarly for the first term we get
+        \begin{align}
+            \int_{\mathcal X \times \mathcal Y} S_1 &=
+                \int_{\mathcal X \times \mathcal Y} 
+                \pi(\d x)\eta(\d y)K(x,\d x')\eta(\d y')
+                \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] \\
+            &= \pi(\d x')\eta(\d y')
+                        \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] \\
+            &= \pi(\d x)\eta(\d y') - \frac 1 Z \min\left\{
+                \gamma(x')\eta(y'),\gamma(y')\eta(x')
+            \right\}
+        \end{align}
+        The second term cancels with the above. We get
+        \begin{align}
+            \int_{\mathcal X \times \mathcal Y} S_1 + S_2 &= 
+                \pi(\d x')\eta(\d y') = \bar \pi(\d x', \d y')
+        \end{align}
+        Therefore $\bar K$ is $\bar \pi$-invariant.
+    \item Firstly we rederive the the following identity
+    \begin{proposition}\label{prop:tv}
+        Supposing that $\mu$ has density $\mu(x)$ and $\nu$ has density $\nu(x)$,
+        then the TV distance $T(\mu, \nu)$ is given by $1 - \int \min(\mu(x),\nu(x)) \d x$
+    \end{proposition}
+    We use the following Lemma
+    \begin{lemma}\label{lemma:tv}
+        Given $\mu$ and $\nu$ above then
+        $\arg\max_A \nu(A) - \mu(A) = \{ x : \nu(x) > \mu(x) \}$ 
+    \end{lemma}
+    \begin{proof}[Proof of Lemma \ref{lemma:tv}]
+        Define $A$ as above. Given any set $A'$ we see that
+            $\nu(A \cap A'^c) \geq \mu(A \cap A'^c)$ and
+            $\nu(A^c \cap A') \leq \mu(A^c \cap A')$
+        \begin{align}
+            \nu(A) - \mu(A) &= 
+            \nu(A \cap A') + \nu(A \cap A'^c) 
+            - \mu(A \cap A') - \mu(A \cap A'^c) \\
+            &\geq \nu(A \cap A') - \mu(A \cap A') \\
+            &\geq \nu(A \cap A') - \mu(A \cap A') + 
+            \nu(A^c \cap A') - \mu(A^c \cap A') \\
+            &= \nu(A') - \mu(A')
+        \end{align}
+    \end{proof}
+    \begin{proof}[Proof of proposition \ref{prop:tv}]
+        By Lemma \ref{lemma:tv} there exist maximizers $A$ and $B$ of
+        $\nu(\cdot)-\mu(\cdot)$ and $\mu(\cdot) - \nu(\cdot)$ of the form 
+        $A = \{ x: \nu(x) > \mu(x) \}$ and $B = \{ x : \nu(x) < \mu(x) \}$.
+        At least one of
+        these maximizes $|\mu(\cdot) - \nu(\cdot)$. Suppose that
+        $\nu(A) - \mu(A) \geq \mu(B) - \nu(B)$. Then we can calculate the TV
+        distance
+        \begin{align}
+            \TV(\nu,\mu) &= \nu(A) - \mu(A) \\
+                &= \int \1\{ \nu(x) > \mu(x) \} \nu(x) \d x
+                - \int \1\{ \nu(x) > \mu(x) \} \mu(x) \d x \\
+                &= \int \1\{ \nu(x) > \mu(x) \} \nu(x) \d x
+                - 1 + \int \1\{ \nu(x) \leq \mu(x) \} \mu(x) \d x \\
+                &= \int \1\{ \nu(x) > \mu(x) \} \nu(x) + \1\{ \nu(x) \leq \mu(x) \} \mu(x)
+                \d x - 1 \\
+                &= \int \max\{ \nu(x), \mu(x) \} \d x - 1
+        \end{align}
+        Note that $\max(a,b) = a + b - \min(a,b)$ so we get
+        \begin{align}
+            \TV(\nu, \mu) &= \int \nu(x) + \mu(x) - \min\{ \mu(x), \nu(x) \} \d x - 1 \\
+            &= 1- \int \min(\mu(x), \nu(x)) \d x
+        \end{align}
+        Integratig over $B$ we get the same result, so our initial choice does
+        not matter, and the lemma is proven.
+        \end{proof}
+        Returning to the problem at hand, at stationary we find (note the $K$ and
+        $\eta$ updates respect the stationary distribution before the swap as well)
+        \begin{align}
+            \int \pi(x)\eta(y)\min\left\{1, \frac{\gamma(y)\eta(x)}{\gamma(x)\eta(y)} \right\}  \d x \d y
+            &= \int \pi(x)\eta(y)\min\left\{1, \frac{\pi(y)\eta(x)}{\pi(x)\eta(y)} \right\} \d x \d y  \\
+            &= \int \min\left\{ \pi(x)\eta(y), \pi(y)\eta(x)\right\} \d x \d y \\
+            &= 1- \TV(\pi \otimes \eta, \eta \otimes \pi) \\
+            &= 1 - \|\pi \otimes \eta - \eta \otimes \pi \|_{\TV}
+        \end{align}
+\end{enumerate}
+
+\section{Problem 2}
+\begin{enumerate}
+    \item % a
+    This proposition is true. Supposing that for some set $A \subset X$
+    $P(X_t \in A) = \epsilon > 0$ for some $t < \infty$ in the reduced chain.
+    Then cons
+    \item % b
+    This is false. We provide a counter example on a two-state Markov chain
+    with states $0$ and $1$. Let $\eta(0)=\eta(1)=\frac 1 2$ and $K(x,x')=\delta_x(x')$
+    This kernel admits the stationary distribution $\pi$ given by $\pi(0)=\pi(1)=\frac 1 2$ but $K$
+    is not $\pi$-irreducible. E.g. if it starts at $0$ it will be stuck at $0$
+    forever and never reach $1$. However, $\bar K$ is $\bar\pi$-irreducible, in-fact
+    since $\pi(x)=\eta(x)$, swaps are always accepted and so $P(X_t = 1) = P(X_T = 0) = \frac 1 2$
+    for all $t > 0$ regardless of starting point. 
+    \item % c
+    This is true and the proof is similar to question 1. We can just plug and
+    chug. Assuming $K$ is $\pi$-reversible then $\pi(\d x)K(x, \d x') = \pi(\d x')K(x', \d x)$
+    Plugging this in and cancelling terms we get
+    \begin{align}
+        &\bar \pi(\d (x,y)) \bar K((x,y), \d(x',y')) \\
+        &= 
+                \bar \pi ((\d x,\d y))\bar K \left((x,y),(\d x', \d y')\right) \\
+                &= 
+            \pi(\d x)\eta(\d y)
+            K(x,\d x')\eta(\d y')
+            \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] 
+            + 
+            \pi(\d x)\eta(\d y)K(x,\d y')\eta(\d x')
+            \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}  \\
+        &=  
+            \pi(\d x')\eta(\d y)
+            K(x',\d x)\eta(\d y')
+            \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] 
+            + 
+            \pi(\d y')\eta(\d y)K(y',\d x')\eta(\d x')
+            \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}  \\
+        &= \pi(\d x')\eta(\d y)K(x',\d x)\eta(\d y')
+        - \frac 1 Z \min\left\{\gamma(x')\eta(y'), \gamma(y')\eta(x') \right\} \d x' \d y'
+        + \frac 1 Z \min\left\{\gamma(x')\eta(y'), \gamma(y')\eta(x') \right\} \d x' \d y' \\
+        &= \pi(\d x')\eta(\d y)K(x',\d x)\eta(\d y')
+    \end{align}
+    This expression is symmetric in $y$ and $y'$ and given the $\pi$-reversibility of
+    $K$ it is also symmetric in $x$ and $x'$ giving us $\bar-\pi$ reversibility of
+    $\bar K$.
+\end{enumerate}
+
+\end{document}
