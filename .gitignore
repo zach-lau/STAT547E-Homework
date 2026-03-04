@@ -1,0 +1,72 @@
+# ===== Latex styling =====
+shortex.sty
+# ===== Julia =====
+# Package manager
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+
+# Compiled
+*.ji
+*.o
+*.so
+*.dylib
+*.dll
+
+# Build artifacts
+/deps/build.log
+/deps/downloads/
+/deps/usr/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Logs
+logs/
+*.log
+
+
+# ===== LaTeX =====
+# Compiled output
+*.pdf
+*.dvi
+*.ps
+*.eps
+
+# Auxiliary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+*.vrb
+
+# latexmk
+*.fls
+*.fdb_latexmk
+
+# BibTeX
+*.bbl
+*.blg
+
+# Index
+*.idx
+*.ind
+*.ilg
+
+
+# ===== General =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

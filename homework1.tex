@@ -173,7 +173,8 @@
     \item % a
     This proposition is true. Supposing that for some set $A \subset X$
     $P(X_t \in A) = \epsilon > 0$ for some $t < \infty$ in the reduced chain.
-    Then cons
+    Then consider the sequence of acceptance probabilities
+        $\alpha_t =$ 
     \item % b
     This is false. We provide a counter example on a two-state Markov chain
     with states $0$ and $1$. Let $\eta(0)=\eta(1)=\frac 1 2$ and $K(x,x')=\delta_x(x')$
@@ -209,9 +210,48 @@
         + \frac 1 Z \min\left\{\gamma(x')\eta(y'), \gamma(y')\eta(x') \right\} \d x' \d y' \\
         &= \pi(\d x')\eta(\d y)K(x',\d x)\eta(\d y')
     \end{align}
-    This expression is symmetric in $y$ and $y'$ and given the $\pi$-reversibility of
-    $K$ it is also symmetric in $x$ and $x'$ giving us $\bar-\pi$ reversibility of
-    $\bar K$.
+    This expression is symmetric in $y$ and $y'$. We can apply the $\pi$-reversibility of
+    $K$ to swap the $x$ and $x'$ and then simply reverse our previous steps
+    \begin{align}
+        &= \pi(\d x)\eta(\d y)K(x, \d x')\eta(\d y') \\
+        &= \bar \pi (\d(x', y')) \bar K((x', y'),\d (x, y))
+    \end{align}
+    Thus $\bar K$ is $\bar \pi$-reversible.
 \end{enumerate}
+
+\section{Problem 3}
+\begin{enumerate}
+    \item % a
+    Outline: 
+    \begin{enumerate}
+        \item Need to show ergodicity
+        \item Show irreducible, aperiodic (not entirely necessary), and
+        Harris recurrence
+        \item Take expected value of 
+    \end{enumerate}
+    \item Same thing, but now need to find autocorrelation at stationarity in
+    order to find variance and ESS
+\end{enumerate}
+
+\section{Problem 4}
+Given that the Gaussians have common diagonal variance the target simplifies as
+\begin{align}
+    \pi(x) 
+    &= \frac {1}{40} \sum_{i=1}^{40} \frac{1}{2\pi \times (0.1)^2}
+        \exp\left(-\frac{(x_1-\mu_{i1})^2}{0.2}-\frac{(x_2-\mu_{i2})^2}{0.2} \right) \\
+    &= \frac{1}{0.8 \pi} \sum_{i=1}^{40} \exp\left(-\frac{(x_1-\mu_{i1})^2}{0.2}-\frac{(x_2-\mu_{i2})^2}{0.2} \right) \\
+    \log(\pi(x)) &=
+        C + \log\left(\sum_{i=1}^{40} \exp\left(-\frac{(x_1-\mu_{i1})^2}{0.2}-\frac{(x_2-\mu_{i2})^2}{0.2} \right) \right)
+\end{align}
+Where $C$ is a constant independent of $x$ and the inner component can be
+computed using log-sum-exp. The gradient is then given by 
+\[
+    \grad \log \pi(x) &= 
+    \frac{1}{\sum_{i=1}^{40}\exp\left(-\frac{(x_1-\mu_{i1})^2}{0.2}-\frac{(x_2-\mu_{i2})^2}{0.2}\right)}
+    \sum_{i=1}^{40} \begin{bmatrix}
+        -\frac{(x_1-\mu_{i1})}{0.1} \\
+        -\frac{(x_2-\mu_{i1})}{0.1} 
+    \end{bmatrix}
+\]
 
 \end{document}
