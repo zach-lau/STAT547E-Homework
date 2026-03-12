@@ -70,3 +70,8 @@ logs/
 Thumbs.db
 .vscode/
 .idea/
+
+# Outputs
+graphics
+*csv
+*.png

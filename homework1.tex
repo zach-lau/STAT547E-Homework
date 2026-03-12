@@ -1,6 +1,57 @@
 \documentclass{article}
 \usepackage{shortex}
 \usepackage[margin=1in]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+% \usepackage{jupynotex}
+\usepackage{csvsimple}
+\usepackage{placeins}
+% \usepackage{hyperref}
+
+
+\graphicspath{{./graphics}}
+
+\lstdefinelanguage{Julia}{
+    keywords={function, end, if, else, elseif, for, while, return, 
+               local, global, const, struct, mutable, abstract, type,
+               using, import, export, module, begin, let, do, try, 
+               catch, finally, true, false, nothing},
+    sensitive=true,
+    comment=[l]{\#},
+    morecomment=[s]{\#=}{=\#},
+    morestring=[b]",
+    morestring=[b]',
+}
+
+\lstset{
+    language=Julia,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{purple},
+    numberstyle=\tiny\color{gray},
+    numbers=left,
+    stepnumber=1,
+    frame=single,
+    breaklines=true,
+    captionpos=b,
+    tabsize=4,
+    showstringspaces=false,
+}
+
+\lstset{
+    literate={ρ}{$\rho$}{1}
+             {α}{$\alpha$}{1}
+             {β}{$\beta$}{1}
+             {σ}{$\sigma$}{1}
+             {σ²}{$\sigma^2$}{2}
+             {μ}{$\mu$}{1}
+             {ϵ}{$\epsilon$}{1}
+             {η}{$\eta$}{1}
+             {η²}{{$\eta^2$}}{2}
+             {r̂}{$\hat r$}{1}
+             {Δ}{$\Delta$}{1}
+}
 
 \title{STAT 547E - Homework 1}
 \author{Zachary Lau}
@@ -33,7 +84,8 @@
                 &= \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} 
             \end{align}
         \end{itemize}
-        Combining the two, we get the expanded kernel
+        Combining the two and noting that the swap is volume preserving
+        (so Jacobian determinant is 1), we get the expanded kernel
         \begin{align}
             \bar K \left((x,y),\d(x',y')\right) =
             K(x,\d x')\eta(\d y')
@@ -42,13 +94,13 @@
             K(x,\d y')\eta(\d x')
             \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} 
         \end{align}
-        We note that we have sligtly abused notation to let $\eta$ refer to both
-        a density (in the accetpance weights) and a measure (outside them).
-        \item % 1-b
-        We show invariance directly from the definition (note we only have
-        detailed balance if $K$ has detailed balance). Let 
-        $\pi$ refer to both a measure and the density $\frac{\gamma(x)}{Z}$. We
-        see that the joint distribution over $((x, y),(x', y'))$ is give by
+        Note that we have slightly abused notation to let $\eta$ refer to both
+        a density (in the acceptance weights) and a measure (outside them).
+        
+
+        We show invariance directly from the definition. Let 
+        $\pi$ refer to the measure with density $\frac{\gamma(x)}{Z}$. We
+        see that the joint distribution over $((x, y),(x', y'))$ is given by
         \begin{align}
             \bar \pi ((\d x,\d y))\bar K \left((x,y),(\d x', \d y')\right) &=
             \pi(\d x)\eta(\d y)
@@ -59,8 +111,7 @@
             \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} 
         \end{align}
         We can integate the summands one at a time (note both are almost-surely
-        non-negative). Consider firstly the second
-        summand
+        non-negative). Consider the second summand in the above equation
         \begin{align}
             S_2 = \pi (\d x)\eta(\d y) K(x, \d y') \eta(\d x')  \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} \\
         \end{align}
@@ -70,44 +121,44 @@
         Furthermore, the only factors depending on $x$ are $\pi(\d x)$ and
         $K(x, \d y')$.
         \begin{align}
-            \int_{\mathcal X} S_2 &= 
+            \int_{\mathbb X} S_2 &= 
             \eta(\d y)\eta(\d x') \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\} 
             \int \pi(\d x)K(x, \d y') \\ 
             &=  \eta(\d y)\eta(\d x') \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}
                 \pi(\d y')
         \end{align} 
         The only factor dependig on $y$ is $\eta (\d y)$ so marginalizing over
-        this we get 
+        $y$ we get 
         \[
-            \int_{\mathcal X \times \mathcal Y} S_2 = 
+            \int_{\mathbb X \times \mathbb X} S_2 = 
                 \eta(\d x') \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}
                 \pi(\d y')
         \]
         Noting that $\eta(\d x ') = \eta(x') \d x'$ and
         $\pi (\d y') = \frac{\gamma(y')}{Z}$ we can further simplify
         \begin{align}
-            \int_{\mathcal X \times \mathcal Y} S_2 =
-                \frac 1 Z \min\left\{\gamma(y')\eta(x'), \gamma(x')\eta(y') \right\}
+            \int_{\mathbb X \times \mathbb X} S_2 =
+                \frac 1 Z \min\left\{\gamma(y')\eta(x'), \gamma(x')\eta(y') \right\} \d x' \d y'
         \end{align}
         Similarly for the first term we get
         \begin{align}
-            \int_{\mathcal X \times \mathcal Y} S_1 &=
-                \int_{\mathcal X \times \mathcal Y} 
+            \int_{\mathbb X \times \mathbb X} S_1 &=
+                \int_{\mathbb X \times \mathbb X} 
                 \pi(\d x)\eta(\d y)K(x,\d x')\eta(\d y')
                 \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] \\
             &= \pi(\d x')\eta(\d y')
                         \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] \\
             &= \pi(\d x)\eta(\d y') - \frac 1 Z \min\left\{
-                \gamma(x')\eta(y'),\gamma(y')\eta(x')
-            \right\}
+                \gamma(x')\eta(y'),\gamma(y')\eta(x') 
+            \right\} \d x' \d y'
         \end{align}
         The second term cancels with the above. We get
         \begin{align}
-            \int_{\mathcal X \times \mathcal Y} S_1 + S_2 &= 
+            \int_{\mathbb X \times \mathbb X} S_1 + S_2 &= 
                 \pi(\d x')\eta(\d y') = \bar \pi(\d x', \d y')
         \end{align}
         Therefore $\bar K$ is $\bar \pi$-invariant.
-    \item Firstly we rederive the the following identity
+    \item Firstly we show the proof of the following proposition
     \begin{proposition}\label{prop:tv}
         Supposing that $\mu$ has density $\mu(x)$ and $\nu$ has density $\nu(x)$,
         then the TV distance $T(\mu, \nu)$ is given by $1 - \int \min(\mu(x),\nu(x)) \d x$
@@ -118,7 +169,7 @@
         $\arg\max_A \nu(A) - \mu(A) = \{ x : \nu(x) > \mu(x) \}$ 
     \end{lemma}
     \begin{proof}[Proof of Lemma \ref{lemma:tv}]
-        Define $A$ as above. Given any set $A'$ we see that
+        Let $A = \{ x : \nu(x) > \mu(x) \}$. Given any set $A'$ we see that
             $\nu(A \cap A'^c) \geq \mu(A \cap A'^c)$ and
             $\nu(A^c \cap A') \leq \mu(A^c \cap A')$
         \begin{align}
@@ -136,7 +187,7 @@
         $\nu(\cdot)-\mu(\cdot)$ and $\mu(\cdot) - \nu(\cdot)$ of the form 
         $A = \{ x: \nu(x) > \mu(x) \}$ and $B = \{ x : \nu(x) < \mu(x) \}$.
         At least one of
-        these maximizes $|\mu(\cdot) - \nu(\cdot)$. Suppose that
+        these maximizes $|\mu(\cdot) - \nu(\cdot)|$. Suppose that
         $\nu(A) - \mu(A) \geq \mu(B) - \nu(B)$. Then we can calculate the TV
         distance
         \begin{align}
@@ -144,9 +195,9 @@
                 &= \int \1\{ \nu(x) > \mu(x) \} \nu(x) \d x
                 - \int \1\{ \nu(x) > \mu(x) \} \mu(x) \d x \\
                 &= \int \1\{ \nu(x) > \mu(x) \} \nu(x) \d x
-                - 1 + \int \1\{ \nu(x) \leq \mu(x) \} \mu(x) \d x \\
-                &= \int \1\{ \nu(x) > \mu(x) \} \nu(x) + \1\{ \nu(x) \leq \mu(x) \} \mu(x)
-                \d x - 1 \\
+                - \left[ 1 - \int \1\{ \nu(x) \leq \mu(x) \} \mu(x) \d x \right] \\
+                &= \int \left[\1\{ \nu(x) > \mu(x) \} \nu(x) + \1\{ \nu(x) \leq \mu(x) \} \mu(x)
+                \right] \d x - 1 \\
                 &= \int \max\{ \nu(x), \mu(x) \} \d x - 1
         \end{align}
         Note that $\max(a,b) = a + b - \min(a,b)$ so we get
@@ -154,11 +205,12 @@
             \TV(\nu, \mu) &= \int \nu(x) + \mu(x) - \min\{ \mu(x), \nu(x) \} \d x - 1 \\
             &= 1- \int \min(\mu(x), \nu(x)) \d x
         \end{align}
-        Integratig over $B$ we get the same result, so our initial choice does
+        Integrating over $B$ we get the same result, so our initial assumption does
         not matter, and the lemma is proven.
         \end{proof}
-        Returning to the problem at hand, at stationary we find (note the $K$ and
-        $\eta$ updates respect the stationary distribution before the swap as well)
+        We return to the immediate problem at hand. Given $(x,y) \sim \bar \pi$,
+        the pre-swap proposal is distributed according to $\bar \pi$ as well, thus
+        the swap acceptance rate is given by
         \begin{align}
             \int \pi(x)\eta(y)\min\left\{1, \frac{\gamma(y)\eta(x)}{\gamma(x)\eta(y)} \right\}  \d x \d y
             &= \int \pi(x)\eta(y)\min\left\{1, \frac{\pi(y)\eta(x)}{\pi(x)\eta(y)} \right\} \d x \d y  \\
@@ -168,71 +220,483 @@
         \end{align}
 \end{enumerate}
 
+\FloatBarrier
+\newpage
 \section{Problem 2}
 \begin{enumerate}
     \item % a
-    This proposition is true. Supposing that for some set $A \subset X$
-    $P(X_t \in A) = \epsilon > 0$ for some $t < \infty$ in the reduced chain.
-    Then consider the sequence of acceptance probabilities
-        $\alpha_t =$ 
+    % TODO formalized this
+    This proposition is true. We provide a heuristic proof. Suppose that our
+    chain starts at $(x_0, y_0)$ and consider any measurable set
+    $A \subset \mathbb X \times \mathbb X$ with $\bar \pi (A) > 0$.
+    We wish to show that the chain will reach $A$ with positive probability by
+    some finite time $t$.
+    Let $A_x  = \{ x : \eta\{ y: (x,y) \in A\} > 0 \}$
+    (i.e. all $x$ which occur with positive probability in $A$). Then marginalizing over 
+    $y$ we see that $\pi(A_X) > 0$. Therefore by the $\pi$-irreducibility of
+    $K$ there is a sequence of transitions that will move $x$ to $A_x$ in the
+    original non-stabilized chain with positive probability by time $t$. WLOG of generality, we assume that the
+    starting point has positive density $\pi(x_0) > 0$, otherwise, the first swap
+    will immediately be accepted and the proof proceeds from that point.
+    We now argue that such an $x$-trajectory has positive probability even in
+    the presence of swaps. Given that
+    $\pi(x_0) > 0$, then since $K$ is $\pi$-irreducible each following $x_i$
+    will have $\pi(x_i) > 0$. Now for each $i$ either $\eta(x_i) = 0$, in which case the RN
+    derivative is infinite and all swaps are rejected, or $\eta(x_i) > 0$ in
+    which case there is positive probability that $x_i$ is drawn from the
+    reference and the swap leaves the state unchanged. Either way, our $x$
+    trajectory is unaffected. All that remains is that at the last step a valid
+    $y_t$ is drawn such $(x_t, y_t) \in A$, which occurs with positive probability
+    by our definition of $A_x$.
+
+    % Consider any starting
+    % point $x$ and set $A \subset \mathbb X$ with $\pi(A) > 0$.
+    % By the $\pi$-irreducibility of $K$, for some $t$ we have
+    % $\pi K^t(A) > 0$. For such a $t$ consider the space of all such paths i.e.
+    % $\nu = \pi(\d x_0) \otimes K(x_0, \d x_1) \otimes \ldots \otimes K(x_{t-1}, \d x_t)$,
+    % and let $B$ be the set of all paths which end in $A$. Then 
+    % $\nu(B) = \pi K^t (A) > 0$. Since $K$ is $\pi$-irreducible, for each $i$,
+    % $w(x_i) > 0$, and thus there is 
+    
+
+    % The image of $D$ under $\bar K$ can be found the following procedure
+    % \begin{itemize}
+    %     \item Take $D'_X$ the image of $D_X$ under $K$
+    %     \item $D'_Y$ is the support of $\eta$, since $y$ is drawn from the reference
+    %     \item This gives $D' = D'_X \times D'_Y$ (since $y$ is drawn independently of $x$)
+    %     \item Compute $E$ the image of $D'$ under the swapping kernel
+    %     \[ K((x,y),\d (x,y)) = \alpha(x,y)\delta_{(y,x)}(x',y') + (1-\alpha(x,y)) \delta_{(x,y)}(x', y')\]
+    % \end{itemize}
+    % We need to show that if $(\pi \otimes \eta)(D) < 1$ then
+    % $(\pi \otimes \eta )(E \setminus D) > 0$. 
+
+
+    % This proposition is true. Supposing that for some set $A \subset X$
+    % $P(X_t \in A) = \epsilon > 0$ for some $t < \infty$ in the reduced chain.
+    % Then consider the sequence of acceptance probabilities
+    %     $\alpha_t =$ 
     \item % b
     This is false. We provide a counter example on a two-state Markov chain
-    with states $0$ and $1$. Let $\eta(0)=\eta(1)=\frac 1 2$ and $K(x,x')=\delta_x(x')$
-    This kernel admits the stationary distribution $\pi$ given by $\pi(0)=\pi(1)=\frac 1 2$ but $K$
-    is not $\pi$-irreducible. E.g. if it starts at $0$ it will be stuck at $0$
+    with states $0$ and $1$. Let the reference be given by
+     $\eta(0)=\eta(1)=\frac 1 2$, transition kernel by $K(x,\d x')=\delta_x(\d x')$
+     and target by $\pi(0) = \pi(1) = \frac 1 2$.
+    $K$ is not $\pi$-irreducible. For example, if a chain starts at $0$ it will be stuck at $0$
     forever and never reach $1$. However, $\bar K$ is $\bar\pi$-irreducible, in-fact
-    since $\pi(x)=\eta(x)$, swaps are always accepted and so $P(X_t = 1) = P(X_T = 0) = \frac 1 2$
-    for all $t > 0$ regardless of starting point. 
+    since $w(0) = w(1) = 1$, swaps are always accepted and so $P(X_T = 1) = P(X_T = 0) = \frac 1 2$
+    for all $T > 0$ regardless of starting point. 
     \item % c
-    This is true and the proof is similar to question 1. We can just plug and
-    chug. Assuming $K$ is $\pi$-reversible then $\pi(\d x)K(x, \d x') = \pi(\d x')K(x', \d x)$
-    Plugging this in and cancelling terms we get
-    \begin{align}
-        &\bar \pi(\d (x,y)) \bar K((x,y), \d(x',y')) \\
-        &= 
-                \bar \pi ((\d x,\d y))\bar K \left((x,y),(\d x', \d y')\right) \\
-                &= 
-            \pi(\d x)\eta(\d y)
-            K(x,\d x')\eta(\d y')
-            \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] 
-            + 
-            \pi(\d x)\eta(\d y)K(x,\d y')\eta(\d x')
-            \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}  \\
-        &=  
-            \pi(\d x')\eta(\d y)
-            K(x',\d x)\eta(\d y')
-            \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] 
-            + 
-            \pi(\d y')\eta(\d y)K(y',\d x')\eta(\d x')
-            \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}  \\
-        &= \pi(\d x')\eta(\d y)K(x',\d x)\eta(\d y')
-        - \frac 1 Z \min\left\{\gamma(x')\eta(y'), \gamma(y')\eta(x') \right\} \d x' \d y'
-        + \frac 1 Z \min\left\{\gamma(x')\eta(y'), \gamma(y')\eta(x') \right\} \d x' \d y' \\
-        &= \pi(\d x')\eta(\d y)K(x',\d x)\eta(\d y')
-    \end{align}
-    This expression is symmetric in $y$ and $y'$. We can apply the $\pi$-reversibility of
-    $K$ to swap the $x$ and $x'$ and then simply reverse our previous steps
-    \begin{align}
-        &= \pi(\d x)\eta(\d y)K(x, \d x')\eta(\d y') \\
-        &= \bar \pi (\d(x', y')) \bar K((x', y'),\d (x, y))
-    \end{align}
-    Thus $\bar K$ is $\bar \pi$-reversible.
+    % This is true and the proof is similar to question 1. We can just plug and
+    % chug. Assuming $K$ is $\pi$-reversible then $\pi(\d x)K(x, \d x') = \pi(\d x')K(x', \d x)$
+    % Plugging this in and cancelling terms we get
+    % \begin{align}
+    %     &\bar \pi(\d (x,y)) \bar K((x,y), \d(x',y')) \\
+    %     &= 
+    %             \bar \pi ((\d x,\d y))\bar K \left((x,y),(\d x', \d y')\right) \\
+    %             &= 
+    %         \pi(\d x)\eta(\d y)
+    %         K(x,\d x')\eta(\d y')
+    %         \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] 
+    %         + 
+    %         \pi(\d x)\eta(\d y)K(x,\d y')\eta(\d x')
+    %         \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}  \\
+    %     &=  
+    %         \pi(\d x')\eta(\d y)
+    %         K(x',\d x)\eta(\d y')
+    %         \left[1 - \min\left\{1, \frac{\gamma(y')\eta(x')}{\gamma(x')\eta(y')}\right\}\right] 
+    %         + 
+    %         \pi(\d y')\eta(\d y)K(y',\d x')\eta(\d x')
+    %         \min\left\{1, \frac{\gamma(x')\eta(y')}{\gamma(y')\eta(x')} \right\}  \\
+    %     &= \pi(\d x')\eta(\d y)K(x',\d x)\eta(\d y')
+    %     - \frac 1 Z \min\left\{\gamma(x')\eta(y'), \gamma(y')\eta(x') \right\} \d x' \d y'
+    %     + \frac 1 Z \min\left\{\gamma(x')\eta(y'), \gamma(y')\eta(x') \right\} \d x' \d y' \\
+    %     &= \pi(\d x')\eta(\d y)K(x',\d x)\eta(\d y')
+    % \end{align}
+    % This expression is symmetric in $y$ and $y'$. We can apply the $\pi$-reversibility of
+    % $K$ to swap the $x$ and $x'$ and then simply reverse our previous steps
+    % \begin{align}
+    %     &= \pi(\d x)\eta(\d y)K(x, \d x')\eta(\d y') \\
+    %     &= \bar \pi (\d(x', y')) \bar K((x', y'),\d (x, y))
+    % \end{align}
+    % Thus $\bar K$ is $\bar \pi$-reversible.
+    This statement is false. We provide a counter example on a two-state Markov
+    chain. Denoting measures by row vectors let
+    \begin{itemize}
+        \item $\pi = \left[\frac 1 2, \frac 1 2 \right]$
+        \item $\eta = \left[ \frac 2 3, \frac 1 3 \right]$
+    \end{itemize}
+    Denoting the first state by $0$ and the second state by $1$ we get
+    $w(0) = \frac 3 4$ and $w(1) = \frac 3 2$. This gives
+    $\alpha(0, 1) = 1$ and $\alpha(1, 0) = \frac 1 2$. The joint distribution
+    at stationarity is given by the product of $\pi$ and $\eta$, namely
+    $\bar \pi = \left[\frac 1 3, \frac 1 6, \frac 1 3, \frac 1 6\right]$
+    , where probabilities correspond to the the states
+    $(X=0, Y=0), (X=0, Y=1), (X=1, Y=0)$ and $(X=1,Y=1)$ respectively.
+    Let our local kernel be the identity kernel. This kernel is trivially
+    reversible with respect to any measure.
+    We now consider the detail balance condition for the states $(0, 1)$ and
+    $(1,0)$ with this kernel. A transition from state $(0,1)$ to $(1, 0)$ can
+    only occur if the proposal $Y$ is $1$ and the swap is accepted. This 
+    gives
+    \[
+        \bar \pi (0, 1)\bar K((0, 1), (1,  0)) = 
+            \frac 1 6 \times \frac 1 3 \times  1 = \frac 1 {18}
+    \]
+    On the other hand from $(1,0)$ to $(0, 1)$ we have
+    \[
+        \bar \pi(1, 0)\bar K((1, 0), (0, 1)) = 
+            \frac 1 3 \times \frac 2 3 \times \frac 1 2 = \frac 1 9
+    \]
+    These are not equal so detail balance is violated - $\bar K$ is not
+    $\bar \pi$-reversible. As a side note, interestingly both the local
+    exploration step and swap step are themselves reversible. However, an
+    arbitrary combination of reversible kernels is not necessarily reversible,
+    as shown in this example.
 \end{enumerate}
 
+\FloatBarrier
+\newpage
 \section{Problem 3}
 \begin{enumerate}
     \item % a
-    Outline: 
-    \begin{enumerate}
-        \item Need to show ergodicity
-        \item Show irreducible, aperiodic (not entirely necessary), and
-        Harris recurrence
-        \item Take expected value of 
-    \end{enumerate}
-    \item Same thing, but now need to find autocorrelation at stationarity in
-    order to find variance and ESS
+    From Problem 2 we know that at stationarity the expected acceptance
+    rate is given by
+    $\E[\alpha] = 1-\| \pi \otimes \eta - \eta \otimes \pi \|_{\TV}$. 
+    Using $\pi = \Norm(\mu, \sigma^2)$ and $\eta = \Norm(0, \sigma^2)$ we
+    we get \[ \pi \otimes \eta \sim \Norm([\mu, 0], \sigma^2 I_2)\] and 
+    \[ \eta \otimes \pi \sim \Norm([0, \mu], \sigma^2 I_2)\]. Applying the hint
+    and with $\Sigma = \sigma^2 I_2$ we get
+    \begin{align}
+        \|\pi \otimes \eta - \eta \otimes \pi \|_{\TV} &= 
+            2\phi\left(\frac 1 2 \| [\mu, -\mu] \|_{\Sigma^{-1}}\right) - 1 \\
+            &= 2\phi\left(\frac 1 2 \sqrt{\frac{2\mu^2}{\sigma^2}}\right) - 1 \\
+            &= 2\phi\left(\frac{\rho}{\sqrt{2}}\right) - 1
+    \end{align}
+    We next show that $\frac{1}{T}\sum_{i=1}^T \alpha_t$ converges almost surely
+    to $\E_{\bar\pi}[\alpha]$. To do so we simply need to show that the
+    chain specified is $\bar\pi$-invariant, aperiodic and $\bar\pi$-irreducible. Invariance
+    comes from question 1. Irreducibility follows from the global support
+    of $\eta$. Since $\eta$ has infinite support $\eta(y)$ can be arbitrarily
+    small ensuring there is always a non-zero chance the swap is rejected, thus
+    we have aperiodicity. Finally note that $\pi$ has global support so we can
+    apply Theorem 4 of Roberts and Rosenthal \cite{Roberts_2004} for any $x \in \mathbb R$.
+
+    % TODO flesh out irreducibility in more detail
+    Given that $\frac{1}{T}\sum_{i=1}^T \alpha_t$ converges almost surely
+    to $\E_{\bar\pi}[\alpha]$ we find that 
+    $\hat r_T = 1 - \frac{1}{T}\sum_{i=1}^T \alpha_t$ converges almost
+    surely to 
+    \begin{align}
+        1 - \E_{\bar\pi}[\alpha] &= 
+            \|\eta - \pi \otimes \pi - \eta\|_{\TV} \\
+        &= 2\phi\left(\frac{\rho}{\sqrt{2}}\right) - 1 
+    \end{align}
+
+    Listing \ref{lst:wait} implements the wait time as a function of
+    $\rho$ in Julia and plots the
+    resulting wait times for $\rho \in [0,5]$. The resulting curves are shown in
+    Figures \ref{fig:rejection} (with $\rho$ on a linear scale) 
+    and \ref{fig:log_rejection} (with $\rho$ on a log-scale). The results show
+    that for higher $\rho$ there are more rejections, and we have to go a longer
+    time between swaps.
+
+    \begin{lstlisting}[language=Julia, caption={Code for theoretical swap rejeciton
+        rates and waiting times}, label={lst:wait}]
+function r_fn(ρ)
+    2*cdf(Normal(),ρ/sqrt(2)) - 1
+end
+
+function wait_fn(ρ)
+    r_fn(ρ)/(1-r_fn(ρ))
+end
+
+plot_ρs = range(0, 5, length=100)
+plot_r = r_fn.(plot_ρs)
+plot_wait = wait_fn.(plot_ρs)
+plot(
+    plot(plot_ρs, plot_r, label="r", color="red", title="Average rejection rate",
+        xlabel = "ρ",  ylabel = "Average rejection rate at stationarity"),
+    plot(plot_ρs, log10.(plot_wait), label="log10 w", title="Waiting time",
+        xlabel = "ρ", ylabel = "Log10 waiting time")
+)
+
+plot_ρs = 10 .^ range(-2, 1, length=100)
+plot_r = r_fn.(plot_ρs)
+plot_wait = wait_fn.(plot_ρs)
+plot(
+    plot(log10.(plot_ρs), plot_r, label="r", color="red", title="Average rejection rate",
+        xlabel = "log10 ρ",  ylabel = "Average rejection rate at stationarity"),
+    plot(log10.(plot_ρs), log10.(plot_wait), label="log10 w", title="Waiting time",
+        xlabel = "log10 ρ", ylabel = "Log10 waiting time")
+)
+    \end{lstlisting}
+    \FloatBarrier
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{rejection.png}
+    \caption{Theoretical rejection rate and waiting times}
+    \label{fig:rejection}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{log_rejection.png}
+    \caption{Theoretical rejection rate and waiting times with $\rho$ on a log-scale}
+    \label{fig:log_rejection}
+\end{figure}
+
+    \item First we \emph{should} show that the $Y_t$ are \iid draws from $\eta$. This is true
+    at stationarity. The $Y_t$ are by definition drawn from $\eta$. Furthermore,
+    since $\bar \pi = \pi \otimes \eta$, the $X_t$ are independent of $Y_t$. This
+    breaks the causal graph between $Y_t$ and $Y_{t+1}$, so they are
+    independent.
+    
+    When we are not at stationarity,
+    $Y_t$ are not necessarily drawn from $\eta$. We provide a brief discussion
+    of this point. Firstly, we demonstrate this empirically through a simulation of the normal
+    example used in this question with $\sigma^2=\mu=1$. A simulation is implemented in 
+    Listing \ref{lst:biased} and the output is shown in Figure \ref{fig:biased}.
+    We can see that prior to reaching stationarity the $Y$'s are actually skewed
+    left as any higher values are more likely to get swapped to $X$'s.
+
+    We can also provide an exact calculation on a two-state Markov chain to
+    show that in the short-term the $Y$-values are biased in the stabilized MCMC
+    algorithm. We consider the simple case with target $\pi = [\frac 2 3, \frac 1 3]$ on
+    state space $\{0,1\}$ and reference $\eta = 
+    \left[\frac 1 2, \frac 1 2 \right]$. With states
+    ordered as $[(0,0), (0,1), (1,0), (1,1)]$, this gives
+    stationary distribution
+    $\bar \pi = \left[\frac 1 3, \frac 1 3, \frac 1 6, \frac 1 6 \right]$. We use as our local kernel the
+    delta kernel $K(x, \d x') = \delta_x(\d x')$. The
+    weights are $w(0) = \frac 4 3 $ and $w(1) = \frac 2 3 $, swap acceptances 
+    $\alpha(0,1) = \frac 1 2$ and $\alpha(1,0) = 1$ and hence transition matrix
+    \[ K = \begin{bmatrix}
+        \frac 1 2 & \frac 1 4 & \frac 1 4 & 0 \\
+        \frac 1 2 & \frac 1 4 & \frac 1 4 & 0 \\
+        0 & \frac 1 2 & 0 & \frac 1 2 \\ 
+        0 & \frac 1 2 & 0 & \frac 1 2
+    \end{bmatrix} \]
+    
+    Initializing our distribution at $\nu_0 = \eta \otimes \eta = 
+    \left[\frac 1 4, \frac 1 4, \frac 1 4, \frac 1 4\right]$ we find the distribution of the chain after the first
+    few steps is given by 
+    \begin{itemize}
+        \item $\nu_1 =  [0.2500, 0.3750, 0.1250, 0.2500]$
+        \item $\nu_2 = [0.3125, 0.3438, 0.1562, 0.1875]$
+        \item $\nu_3 = [0.3281, 0.3359, 0.1641, 0.1719]$
+    \end{itemize}
+    And specifically looking at the marginal distribution of $Y$ we find
+    \begin{itemize}
+        \item $Y_1 \sim [0.3750, 0.6250]$
+        \item $Y_2 \sim [0.4688, 0.5312]$
+        \item $Y_3 \sim [0.4922, 0.5078]$
+    \end{itemize}
+    Not only is the marginal distribution of $Y_i$ not $\eta$, from the joint
+    distributions we can see that $X$ and $Y$ are not independent. E.g. for the 
+    first time step $0.25 \times 0.125 \neq 0.375 \times 0.25$, while for
+    independent $X$ and $Y$
+    $P(0,1)P(1,0)=P(X=0)P(Y=1)P(X=1)P(Y=0)=P(0,0)P(1,1)$.
+    Further discussion might include analyis of the combined state markov chain
+    with state $S_i = (X_i, X_{i+1}, Y_i, Y_{i+1})$ to show dependence between
+    $Y_i$ and $Y_{i+1}$.
+
+    \begin{lstlisting}[language=Julia, caption={Simulation of stabilized MCMC
+        before stationarity on the normal example with 
+        $\eta \sim \Norm(0,1)$ and $\pi \sim \Norm(1,1)$}, label={lst:biased}]
+function logw(x)
+    μ = 2
+    x*μ-1/2*μ^2 # Target is mean 1, sd 1 reference is mean 0
+end
+
+N = 100000
+T = 15
+spacing = 5
+checkpoints = Matrix{Float64}(undef, N, div(T, spacing))
+for j in 1:N 
+    c = Float64[]
+    x = randn()
+    y = randn()
+    xs = [x]
+    ys = [y]
+    acc = 0
+    for i in 1:T
+        y = randn()
+        alpha = logw(y) - logw(x)
+        if alpha > 0 || rand() < exp(alpha)
+            (x, y) = (y, x)
+            acc = acc + 1
+        end
+        push!(xs, x)
+        push!(ys, y)
+        if i % spacing == 0
+            push!(c, y)
+        end
+    end
+    checkpoints[j,:] = c
+    # println(mean(xs))
+    # println(acc/T)
+end
+
+println(mean(checkpoints, dims = 1))
+println(std(checkpoints, dims = 1))
+
+data = checkpoints[:,1]
+histogram(data, normalize=:pdf, label="Y_$spacing", alpha = 0.5)
+density!(data, label="KDE", linewidth=2)
+plot!(Normal(0, 1), label="N(0,1)", linewidth=2)
+    \end{lstlisting}
+\FloatBarrier
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{biased.png}
+    \caption{Distribution of $Y$ after 5 iterations of stabilized MCMC on
+    normal target with $\eta \sim \Norm(0,1)$ and 
+    $\pi \sim \Norm(1,1)$}
+    \label{fig:biased}
+\end{figure}
+    
+    For the sake of
+    simplicity we assume that $\hat Z_T$ 
+    is defined in terms of the $Y'_t$ which \emph{are} \iid draws from 
+    $\eta$. In this case
+    \[
+        \E w(y) = \int \frac{\pi(y)}{\eta(y)}\eta(y) \d y = 1
+    \]
+    Next we can compute the variance of the weights.  For
+    this specific case, the weights are given by 
+    \begin{align}
+        \log(w(y)) &= -\frac 1 2 \frac{(y-\mu)^2}{\sigma^2} + \frac 1 2 \frac{y^2}{\sigma^2} \\
+        &= \frac{2\mu y - \mu^2}{2\sigma^2} \\
+        w(y) &= \exp\left(\frac{2\mu y - \mu^2}{2\sigma^2}\right)
+    \end{align}
+    Given that $y \sim \Norm(0, \sigma^2)$ we see that 
+    $\frac{2\mu y - \mu^2}{2\sigma^2}$ is normal with mean 
+    $-\frac{\mu^2}{2\sigma^2} = -\frac 1 2 \rho^2$ and variance
+    $\sigma^2 \left( \frac{\mu}{\sigma^2} \right)^2 = \rho^2$. Thus
+    $w(y)$ is log-normally distributed with $\log w(y) \sim \Norm\left(-\frac 1 2 \rho^2, \rho^2 \right)$.
+    From the log-normal distriubtion properties this gives
+        $\E w(y) = 1$ and $\Var w(y)= \exp(\rho^2) - 1$.
+    Since the $y$ are \iid the $w(y)$ are also \iid and we find that
+    $\E \hat Z_T = 1$ and $\Var \hat Z_T = \frac {\exp(\rho^2) - 1} T$.
+    A simulation of the importance sampling weights is done in
+    listing \ref{lst:is}. The resulting empirical mean and scaled variance is shown in 
+    Table \ref{tab:is}. For small $\rho$ the empirical quantities are close
+    to what we expect. For larger $\rho$ due the distance between our
+    proposal and target distribution the estimates of both the mean and variance
+    are much less reliable.
+
+\begin{lstlisting}[language=Julia, caption={Importance Sampling Estimate of Normalizing Constant},
+    label={lst:is}]
+function logw(y,ρ)
+    ρ*y-1/2*ρ^2 # Cancel the y^2 terms
+end
+
+T = 200
+y = randn(T)
+# We can use common random numbers to reduce variability
+for ρ in [0.5, 1, 2, 3]
+    println("=== ρ=$ρ ===")
+    ls = logw.(y, ρ)
+    w = exp.(ls)
+    avg = mean(w) # estimate mean
+    variance = var(w) # estimate variance
+    println("Mean $avg and variance $variance")
+    tvar = exp(ρ^2) - 1
+    println("Theoretical variance: $tvar")
+end
+\end{lstlisting}
+
+\begin{table}[h]
+\centering
+\csvautotabular{is.csv}
+\caption{Mean and Variance of Importance Sampling Estimates of Normalizing
+Constant. The true value is $1$. Variances are scaled by $T$, the number of
+samples.}
+\label{tab:is}
+\end{table}
+
+    \item % c
+    Viewing the renewals as coming from a renewal process,
+    the expected waiting time until a renewal at stationarity is given by 
+    \begin{align}
+        \frac{1}{\E[\alpha]} - 1 &= 
+        \frac{r(\rho)}{1 - r(\rho)} \\ &=
+            \frac{2\phi\left(\frac{\rho}{\sqrt{2}}\right) - 1}
+            {2 -2\phi\left(\frac{\rho}{\sqrt{2}}\right)} \\
+    \end{align}
+
+    Near $\rho=0$ the numerator approaches $0$ and denominator approaches $1$.
+    We can take a first order Taylor approximation of the normal CDF, recalling
+    that it's derivative is the normal pdf $\frac{1}{\sqrt{2\pi}}\exp\left(-\frac 1 2 x^2\right)$.
+    Thus near $\rho=0$ the waiting time behaves like
+    \[
+        w(\rho) \approx \frac{\rho}{2\sqrt{\pi}} + o(\rho^2)
+    \]
+    I.e. it approaches $0$ linearly.
+
+    Next we anlayze $\Var \hat Z_T$ as $\rho \to 0$. Taking
+    a first order taylor expansion of the exponential we see 
+    \[ 
+        \hat Z_T(\rho) \approx \frac{1}{T}\rho^2 + o(\rho^4)
+    \]
+    This approaches $0$ quadratically, which is faster than the rate at which
+    the wait time approaches zero.
+
+    Next we consider the behaviour of $\Var \hat Z_T$ as $\rho \to \infty$.
+    The first term dominates and $\Var \hat Z_T$ is
+    $O\left( \exp(\rho^2) \right)$.
+
+    As $\rho \to \infty$, $\phi\left(\frac{\rho}{\sqrt{2}}\right) \to 1$. Thus the
+    numerator of $w(p)$ approaches $1$ and the denominator approaches $0$.
+    The waiting time thus scales like
+    $\frac{1/2}{1-\phi(\rho/\sqrt{2})} = \frac{1}{2S(\rho/\sqrt{2})}$ where $S$ is the normal survival
+    function. We can compare this to the rate at which $w(\rho)$ goes to infinity
+    by using l'Hopitals. We get
+    \begin{align}
+        \lim_{\rho\to\infty} \frac{w(\rho)}{\Var \hat Z_T (\rho)} 
+        &=  \frac{2}{T}\lim_{\rho\to\infty} \frac{\exp(-\rho^2)}{S\left(\frac{\rho}{\sqrt{2}}\right)}
+        \times \frac{1}{1-\exp(-\rho^2)}\\
+        &= \lim_{\rho\to\infty} \frac{-2\rho\exp(-\rho^2)}
+            {-\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{\rho^2}{4}\right)} \\
+        &= 0
+    \end{align}
+    So the variance of the normalizing constant estimate approaches infinity
+    faster than the waiting time.
+
+    Listing \ref{lst:wait_vs_var} plots the waiting time and importance sampling variance.
+    The plots are shown in Figure \ref{fig:wait_vs_var} on a log-log scale. We can
+    see that the behaviour agrees with what we expect in both extremes; the
+    variance of the estimate of the normalizing constant both grows faster as
+    $\rho$ grows, and shrinks faster as $\rho$ shrinks (note the difference in
+    scales).
+
+\begin{lstlisting}[language=Julia, caption={Plotting of wait time and variance
+    of normalizing constant estimator}, label={lst:wait_vs_var}]
+function var_t(ρ, T = 1)
+    (exp(ρ^2) - 1)/T
+end
+
+plot_ρs = 10 .^ range(-2, 1, length=100)
+plot_wait = wait_fn.(plot_ρs)
+plot_var = var_t.(plot_ρs)
+plot(
+    plot(log.(plot_ρs), log.(plot_wait), label="log w", color="red"),
+    plot(log.(plot_ρs), log.(plot_var), label="log var T"),
+)
+\end{lstlisting}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{wait_vs_var.png}
+    \caption{Waiting time vs Variance of Normalizing Constant Estimator as a
+    Function of $\rho$}
+    \label{fig:wait_vs_var}
+\end{figure}
+    
 \end{enumerate}
 
+\FloatBarrier
+\newpage
 \section{Problem 4}
 Given that the Gaussians have common diagonal variance the target simplifies as
 \begin{align}
@@ -244,7 +708,67 @@ Given that the Gaussians have common diagonal variance the target simplifies as
         C + \log\left(\sum_{i=1}^{40} \exp\left(-\frac{(x_1-\mu_{i1})^2}{0.2}-\frac{(x_2-\mu_{i2})^2}{0.2} \right) \right)
 \end{align}
 Where $C$ is a constant independent of $x$ and the inner component can be
-computed using log-sum-exp. The gradient is then given by 
+computed using log-sum-exp. Listing \ref{lst:rwm} implements Metropolis-Hastings
+with a random walk proposal.
+
+\begin{lstlisting}[language=julia, caption={RWM MH}, label={lst:rwm}]
+##GMM-40 specification
+const σ2  = 0.1
+const Δ      = 3
+const μ_grid = [[i*Δ, j*Δ] for i in 0:4 for j in 0:7]   # 40 means
+const K      = length(μ_grid)
+
+function log_gamma(x::Vector)
+    logsumexp([-dot(x-μ, x-μ)/(2σ2) for μ in μ_grid])
+end
+
+function grad_log_gamma(x::Vector)
+    factors = [-dot(x-μ, x-μ)/(2σ2) for μ in μ_grid]
+    s = logsumexp(factors)
+    sum([(μ-x)/σ2 for μ in μ_grid] .* exp.(factors .- s))
+end
+
+# Contour grid for visualisation
+xg = range(-2, 14, length=150)
+yg = range(-2, 23, length=150)
+Z_contour = [exp(log_gamma([x, y])) for y in yg, x in xg];
+
+function rwm_kernel(x, σ_prop; rng)
+    # Instrumented rwm kernel (returns acceptances as well)
+    # Make proposal
+    xp = x + σ_prop*randn(rng, length(x)) # isotropic steps
+    # Symmetric proposal so the qs cancel
+    alpha = log_gamma(xp)-log_gamma(x)
+    acc = false
+    if alpha > 0 || rand(rng) < exp(alpha)
+        x = xp # else x = x
+        acc = true
+    end
+    (x, acc)
+end
+
+function mh_chain(x0, kernel, T; rng)
+    # Instrumented mh chain
+    acceptances = 0
+    x = x0
+    chain = Matrix{Float64}(undef, 2, T)
+    chain[:,1] = x
+    for i in 2:T
+        (x, acc) = kernel(x; rng = rng)
+        chain[:,i] = x
+        acceptances += Int(acc)
+    end
+    (chain, acceptances/T)
+end
+
+# rng is a little overloaded here
+rwm_chain(x0, σ_prop, T; rng) = mh_chain(x0,
+    (x; rng) -> rwm_kernel(x, σ_prop; rng = rng),
+    T ; rng = rng
+)
+\end{lstlisting}
+
+The gradient is given by 
 \[
     \grad \log \pi(x) &= 
     \frac{1}{\sum_{i=1}^{40}\exp\left(-\frac{(x_1-\mu_{i1})^2}{0.2}-\frac{(x_2-\mu_{i2})^2}{0.2}\right)}
@@ -252,6 +776,315 @@ computed using log-sum-exp. The gradient is then given by
         -\frac{(x_1-\mu_{i1})}{0.1} \\
         -\frac{(x_2-\mu_{i1})}{0.1} 
     \end{bmatrix}
+    \exp\left(-\frac{(x_1-\mu_{i1})^2}{0.2}-\frac{(x_2-\mu_{i2})^2}{0.2}\right)
 \]
+Using our MH infrastructure, and this gradietn we can implement MALA. This is
+done in Listing \ref{lst:mala}.
+
+\begin{lstlisting}[language=Julia, caption={MALA}, label={lst:mala}]
+function mala_kernel(x, ϵ; rng)
+    μ_f = x + ϵ^2/2*grad_log_gamma(x) # Forward proposal
+    xp = μ_f + ϵ*randn(rng, length(x)) # Add noise
+    μ_b = xp + ϵ^2/2*grad_log_gamma(xp)
+
+    # Log density of proposal is just -(x-μ)^2/(2σ^2)
+    df = xp-μ_f
+    db = x-μ_b
+    alpha = log_gamma(xp) - log_gamma(x) - dot(df,df)/(2ϵ^2) +  dot(db,db)/(2ϵ^2)
+    acc = false
+    if alpha > 0 || rand(rng) < exp(alpha)
+        x = xp
+        acc = true
+    end
+    (x, acc)
+end
+
+mala_chain(x0, ϵ, T; rng) = mh_chain(
+    x0, (x; rng) -> mala_kernel(x, ϵ; rng = rng), T; rng=Random.default_rng(42)
+)
+\end{lstlisting}
+
+Both are run for $10000$ iterations with the GMM-40 target in Listing
+\ref{lst:run_rwm_mala}.
+
+\begin{lstlisting}[language=Julia, caption={Running RWM and MALA}, label={lst:run_rwm_mala}]
+T  = 10_000
+x0 = μ_grid[1] .+ 0.1*randn(2)
+
+seed=123
+
+chains_rwm = Matrix{Float64}[]
+acc_rwm = Float64[]
+σs = [0.3, 1.0, 3.0]
+for σ_prop in σs
+    println("Running RWM with σ_prop = $σ_prop")
+    chain, acceptance = rwm_chain(x0, σ_prop, T; rng=Random.default_rng(42))
+    push!(chains_rwm, chain)
+    push!(acc_rwm, acceptance)
+end
+
+chains_mala = Matrix{Float64}[]
+acc_mala = Float64[]
+ϵs = [0.05, 0.1, 0.5]
+for ϵ in ϵs
+    println("Running MALA with ϵ = $ϵ")
+    chain, acceptance = mala_chain(x0, ϵ, T; rng=Random.default_rng(42))
+    push!(chains_mala, chain)
+    push!(acc_mala, acceptance)
+end
+\end{lstlisting}
+
+The plotting code in Listing \ref{lst:plot_mc} visualizes the results. These results
+are shown in Figures \ref{fig:rwm} and \ref{fig:mala} with ESS and acceptance
+rates shown in Tables \ref{tab:rwm_gmm40} and \ref{tab:mala_gmm40}. With small
+proposal scales, both samplers get stuck in local modes. They have high
+acceptance rates, ESS is high, and traceplots look like they have converged.
+However, based on the contour plots we can see that they miss many important
+modes!
+
+With larger proposal scales, acceptance rates are worse and ess is lower,
+but this is not necessarily bad. Larger jumps may be accepted less often, but
+this allows us to explore modes further away. In our case, the ESS may be lower, but this is
+simply because the ESS is more realistic, and visual analysis of the traceplots
+shows that the larger proposal scales explore the space better. Generally, there is a
+balance to be had between efficient local exploration (small step sizes) and
+the ability to find distance mode (with large step sizes). In this case, the
+difficulty in the problem is in the disparate modes, so larger step-sizes win out.
+
+Given that the parameters used are
+different for MALA and RWM, we cannot directly compare the two algorithms to one
+another, however MALA appears to get even more stuck in local modes than RWM.
+Neither sampler is able to convincingly explore all modes in this problem. Even
+with larger step sizes it still takes a while to break out and find another mode.
+
+\begin{lstlisting}[language=Julia, caption={Plotting code for MCMC}, label={lst:plot_mc}]
+function myplot(alg, chains, parname, values)
+    plots = Plots.Plot[]
+    for (c, v) in zip(chains, values)
+        # Row of scatter plots
+        p = contour(xg, yg, Z_contour, levels=3, fill=false, title="$alg with $parname=$v")
+        scatter!(p, c[1,:], c[2,:])
+        push!(plots, p)
+    end
+    for (c, v) in zip(chains, values)
+        # Row of trace plots
+        t = plot(c', alpha=0.5)
+        push!(plots, t)
+    end
+    return plots
+end
+
+plot(myplot("RWM", chains_rwm, "σ_prop", σs)..., layout=(2,3), size=(1000,1000))
+plot(myplot("MALA", chains_mala, "ϵ", ϵs)..., layout=(2,3), size=(1000,1000))
+\end{lstlisting}
+\FloatBarrier
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{rwm.png}
+    \caption{Samples from RWM sampler without stabilization}
+    \label{fig:rwm}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{mala.png}
+    \caption{Samples from MALA sampler without stabilization}
+    \label{fig:mala}
+\end{figure}
+
+\begin{table}
+    \centering
+    \csvautotabular{rwm.csv}
+    \caption{ESS and Acceptance Ratios for RWM on GMM-40}
+    \label{tab:rwm_gmm40}
+\end{table}
+
+\begin{table}
+    \centering
+    \csvautotabular{mala.csv}
+    \caption{ESS and Acceptance Ratios for MALA on GMM-40}
+    \label{tab:mala_gmm40}
+\end{table}
+
+\FloatBarrier
+\newpage
+\section{Problem 5}
+Listing \ref{lst:stable} implements stabilized MCMC.
+
+\begin{lstlisting}[language=Julia, caption={Stabilized MCMC}, label={lst:stable}]
+function logw(x, σ_η²)
+    # Weighting function for GMM-40 target with normal reference
+    return log_gamma(x) + 1/2*dot(x,x)/σ_η²
+end
+
+function stabilised_mcmc(x0, σ_η, T; kernel, rng)
+    # Note - adding an x0 here as well
+    Xs = Matrix{Float64}(undef, 2, T);
+    x = x0
+    Xs[:,1] = x0
+    acceptances = 0
+    for i in 2:T
+        (x, _) = kernel(x, rng = rng) # Throw away the MH acceptance info
+        y = σ_η * randn(length(x0)) # Draw from isotropic reference
+        alpha = logw(y, σ_η^2) - logw(x, σ_η^2)
+        if alpha > 0 || rand(rng) < exp(alpha)
+            x = y # the y = x doesn't matter in practice
+            acceptances += 1
+        end
+        Xs[:,i] = x
+    end
+    return Xs, acceptances/T
+end
+\end{lstlisting}
+
+We run this for both RWM and MALA in listing \ref{lst:run_stable} with
+$\sigma_\eta = 10$. Resulting
+scatter plots are shown in Figures \ref{fig:stabilized_rwm} and 
+\ref{fig:stabilized_mala}. The ESS and swap rejection rates are give in 
+Table \ref{tab:original}.
+
+\begin{lstlisting}[language=Julia, caption={Running Stabilized MCMC}, label={lst:run_stable}]
+σ_η = 10.0
+T   = 10_000
+
+# TODO: run classical and stabilised versions; print ESS and rejection rate table
+stable_rwm, acc_rwm = stabilised_mcmc(
+    x0, σ_η, T;
+    kernel = (x; rng) -> rwm_kernel(x, 1, rng = rng),
+    rng = Random.default_rng(42)
+)
+
+stable_mala, acc_mala = stabilised_mcmc(
+    x0, σ_η, T;
+    kernel = (x; rng) -> mala_kernel(x, 0.1, rng = rng),
+    rng = Random.default_rng(42)
+)
+
+original_rwm = chains_rwm[1]
+original_mala = chains_mala[1]
+
+function comp_plot(chains, titles)
+    plots = Plots.Plot[]
+    for (c, title) in zip(chains, titles)
+        p = contour(xg, yg, Z_contour, levels=3, fill=false, title=title)
+        scatter!(p, c[1,:], c[2,:])
+        push!(plots, p)
+    end
+    for c in chains
+        t = plot(c', alpha=0.5)
+        push!(plots, t)
+    end
+    return plots
+end
+
+ess_rwm = ess_1d(stable_rwm[1,:])
+ess_mala = ess_1d(stable_mala[1,:])
+r_rwm = 1-acc_rwm
+r_mala = 1-acc_mala
+println("RWM: ESS = $ess_rwm, Rejection rate = $r_rwm")
+println("MALA: ESS = $ess_mala, Rejection rate = $r_mala")
+\end{lstlisting}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{stabilized_rwm.png}
+    \caption{Samples from stabilized RWM}
+    \label{fig:stabilized_rwm}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{stabilized_mala.png}
+    \caption{Samples from stabilized MALA}
+    \label{fig:stabilized_mala}
+\end{figure}
+
+\begin{table}
+\centering
+\csvautotabular{original.csv}
+\caption{ESS of $x_1$ and Swap Rejection Rate for stabilized RWM and MALA
+with $\sigma_\eta = 10$}
+\label{tab:original}
+\end{table}
+
+The stabilized MCMC performs much better than the original. The swap rejection
+rate is somewhat high, but it is still able to discover most modes, whereas 
+the corresponding unstabilized version is stuck in the initial mode.
+% \item 
+We repeat for $\sigma_\eta \in \{2^{-5}, 2^{-4}, \ldots, 2^5\}$ in Listing
+\ref{lst:compare_stable}. The resulting ESS and empirical rejection rates are
+shown in Figures \ref{fig:ess_rwm} and \ref{fig:ess_mala}. The behaviour is
+slightly different. For RWM there appears to be a sweet splot near
+$\sigma_\eta = 2^4$ where ESS peaks, and the rejection rate dips. However,
+MALA actually sees ESS peak near $\sigma_\eta = 2^{-2}$. This is likely to
+correspond to a local mode. It is interesting that the $\hat r$ is different
+between the two samplers, since they are targetting the same distribution.
+This may be due to the fact that we have not yet reached stationarity, and thus
+the modes that are actually explord have an outsized effect on $\hat r$.
+% A more spread out reference distribution has a higher rejection rate and lower
+% ESS, but as we have seen, these are not always useful metrics when talking about
+% multi-modal distributions. In particlar, ESS may be high if our chain is stuck
+% in a local mode and never explores. This can happen if our referece is itself mostly
+% contained in one mode. On the other hand, a broad reference helps us to explore other modes
+% better, however the apparent ESS will be lower due to autocorrelation within the
+% local mode. Furthermore, the tendency for a broad reference to also include
+% areas of low $\pi$-probability increases the swap rejection rate. As we have
+% seen from the scatter plots, overall the stabilised version does a much better
+% job of discovering all of our modes than the original RWM and MALA. ESS may be
+% lower, but in this context it is meaningless since we have yet to reach
+% stationarity.
+
+\begin{lstlisting}[language=Julia, caption={Comparing for different values of $\sigma_\eta$}, 
+    label={lst:compare_stable}]
+σ_η_vals = [2.0^k for k in -5:5]
+stable_chains_rwm = Matrix{Float64}[]
+stable_chains_mala = Matrix{Float64}[]
+as_rwm = Float64[]
+as_mala = Float64[]
+for σ_η in σ_η_vals
+    c_rwm, a_rwm = stabilised_mcmc(
+        x0, σ_η, T;
+        kernel = (x; rng) -> rwm_kernel(x, 1, rng = rng),
+        rng = Random.default_rng(42)
+    )
+    c_mala, a_mala = stabilised_mcmc(
+        x0, σ_η, T;
+        kernel = (x; rng) -> mala_kernel(x, 0.1, rng = rng),
+        rng = Random.default_rng(42)
+    )
+    push!(stable_chains_rwm, c_rwm)
+    push!(stable_chains_mala,c_mala)
+    push!(as_rwm, a_rwm)
+    push!(as_mala, a_mala)
+end
+
+esses_rwm = [ess_1d(X[1,:]) for X in stable_chains_rwm]
+esses_mala = [ess_1d(X[1,:]) for X in stable_chains_mala]
+
+plot(
+    scatter(log2.(σ_η_vals), esses_rwm, title="ESS RWM", xlabel="log2(σ_η)", ylabel="ESS"), 
+    scatter(log2.(σ_η_vals), 1 .- as_rwm, title="RWM r̂", xlabel="log2(σ_η)", ylabel="r̂")
+)
+\end{lstlisting}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{ess_rwm.png}
+    \caption{ESS and empirical rejection rate as a function of $\sigma_\eta$ for
+    stabilized RWM}
+    \label{fig:ess_rwm}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{ess_mala.png}
+    \caption{ESS and empirical rejection rate as a function of $\sigma_\eta$ for
+    stabilized MALA}
+    \label{fig:ess_mala}
+\end{figure}
+
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}
