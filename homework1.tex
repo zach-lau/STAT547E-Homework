@@ -236,8 +236,10 @@
     $y$ we see that $\pi(A_X) > 0$. Therefore by the $\pi$-irreducibility of
     $K$ there is a sequence of transitions that will move $x$ to $A_x$ in the
     original non-stabilized chain with positive probability by time $t$. WLOG of generality, we assume that the
-    starting point has positive density $\pi(x_0) > 0$, otherwise, the first swap
-    will immediately be accepted and the proof proceeds from that point.
+    starting point has positive density $\pi(x_0) > 0$. Given the $\pi$-irreducibility
+    of $K$ the chain will reach such a point by time $t$, or a swap will be
+    accepted. In either case we can start our heuristic proof at this point.
+
     We now argue that such an $x$-trajectory has positive probability even in
     the presence of swaps. Given that
     $\pi(x_0) > 0$, then since $K$ is $\pi$-irreducible each following $x_i$
@@ -854,8 +856,8 @@ difficulty in the problem is in the disparate modes, so larger step-sizes win ou
 Given that the parameters used are
 different for MALA and RWM, we cannot directly compare the two algorithms to one
 another, however MALA appears to get even more stuck in local modes than RWM.
-Neither sampler is able to convincingly explore all modes in this problem. Even
-with larger step sizes it still takes a while to break out and find another mode.
+Only RWM with step size $3.0$ is able to find all the modes, although it still
+shows some tendency to get stuck in a mode for a while before breaking out.
 
 \begin{lstlisting}[language=Julia, caption={Plotting code for MCMC}, label={lst:plot_mc}]
 function myplot(alg, chains, parname, values)
@@ -1009,19 +1011,27 @@ with $\sigma_\eta = 10$}
 \end{table}
 
 The stabilized MCMC performs much better than the original. The swap rejection
-rate is somewhat high, but it is still able to discover most modes, whereas 
-the corresponding unstabilized version is stuck in the initial mode.
+rate is somewhat high, but it is still able to discover all modes for RWM,
+although it missed a mode for MALA. On the other hand,
+the corresponding unstabilized version is stuck in the initial mode in both cases.
 % \item 
 We repeat for $\sigma_\eta \in \{2^{-5}, 2^{-4}, \ldots, 2^5\}$ in Listing
 \ref{lst:compare_stable}. The resulting ESS and empirical rejection rates are
 shown in Figures \ref{fig:ess_rwm} and \ref{fig:ess_mala}. The behaviour is
-slightly different. For RWM there appears to be a sweet splot near
-$\sigma_\eta = 2^4$ where ESS peaks, and the rejection rate dips. However,
-MALA actually sees ESS peak near $\sigma_\eta = 2^{-2}$. This is likely to
-correspond to a local mode. It is interesting that the $\hat r$ is different
-between the two samplers, since they are targetting the same distribution.
-This may be due to the fact that we have not yet reached stationarity, and thus
-the modes that are actually explord have an outsized effect on $\hat r$.
+slightly different for RWM vs MALA. For RWM there appears to be a sweet spot near
+$\sigma_\eta = 2^4$ where ESS peaks, and the rejection rate dips. This seems
+reasonable as the reference is able to cover the modes without being too large.
+However, MALA actually sees ESS peak near $\sigma_\eta = 2^{-2}$. This likely
+corresponds to a local mode. It is also interesting that MALA doesn't see a
+dip in the rejection rate around $\sigma_\eta = 2^2$ to $2^4$ like for RWM, even
+though the swap rejection rate should in theory be the same for both samplers.
+This may be due to the fact that we have not yet reached stationarity, but
+it is not clear without further experiments.
+
+In general the results are most conclusive for RWM, increasing $\sigma_\eta$
+until it covers all the modes, but not beyond that should provide the best
+reference. It is not clear why we don't  see the same benefit for MALA.
+
 % A more spread out reference distribution has a higher rejection rate and lower
 % ESS, but as we have seen, these are not always useful metrics when talking about
 % multi-modal distributions. In particlar, ESS may be high if our chain is stuck
