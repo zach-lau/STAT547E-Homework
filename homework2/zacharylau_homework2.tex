@@ -1,0 +1,452 @@
+\documentclass{article}
+\usepackage{shortex}
+\usepackage[margin=1in]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+% \usepackage{jupynotex}
+\usepackage{csvsimple}
+\usepackage{placeins}
+% \usepackage{hyperref}
+
+
+\graphicspath{{./graphics}}
+
+\lstdefinelanguage{Julia}{
+    keywords={function, end, if, else, elseif, for, while, return, 
+               local, global, const, struct, mutable, abstract, type,
+               using, import, export, module, begin, let, do, try, 
+               catch, finally, true, false, nothing},
+    sensitive=true,
+    comment=[l]{\#},
+    morecomment=[s]{\#=}{=\#},
+    morestring=[b]",
+    morestring=[b]',
+}
+
+\lstset{
+    language=Julia,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{purple},
+    numberstyle=\tiny\color{gray},
+    numbers=left,
+    stepnumber=1,
+    frame=single,
+    breaklines=true,
+    captionpos=b,
+    tabsize=4,
+    showstringspaces=false,
+}
+
+\lstset{
+    literate={ρ}{$\rho$}{1}
+             {α}{$\alpha$}{1}
+             {β}{$\beta$}{1}
+             {σ}{$\sigma$}{1}
+             {σ²}{$\sigma^2$}{2}
+             {μ}{$\mu$}{1}
+             {ϵ}{$\epsilon$}{1}
+             {η}{$\eta$}{1}
+             {η²}{{$\eta^2$}}{2}
+             {r̂}{$\hat r$}{1}
+             {Δ}{$\Delta$}{1}
+}
+
+\begin{document}
+\title{STAT 547E - Homework 1}
+\author{Zachary Lau}
+\date{\today}
+\maketitle
+
+\section{Problem 1}
+\begin{enumerate}
+    \item % a)
+    We begin by proving the hint. Firstly we show that under ELE
+    $\E g^n_t = \frac {Z_{\beta_t}}{Z_{\beta_{t-1}}}$
+    By the ELE assumption we can replace expectations in
+    $g(X_{t-1})$ with expectations over $X_{t-1}$ \emph{even if $X_{t-1}$ is not
+    actually distributed according to $\pi_{\beta_{t-1}}$}.
+    \begin{align}
+        \E g^n_t &= \E_{\pi_{\beta_{t-1}}}
+            \frac{\gamma_{\beta_{t}}(X_{t-1})}{\gamma_{\beta_{t-1}}(X_{t-1})} \\
+        &= \int \pi_{\beta_{t-1}}(\d x_{t-1})
+            \frac{\gamma_{\beta_{t}}(x_{t-1})}{\gamma_{\beta_{t-1}}(x_{t-1})} \\
+        &= \int \pi_{\beta_{t-1}}(\d x_{t-1})
+            \frac{\pi_{\beta_{t}}(x_{t-1}) Z_t}{\pi_{\beta_{t-1}}(x_{t-1}) Z_{t-1}} \\ 
+        &= \frac{Z_t}{Z_{t-1}} 
+    \end{align}
+    In the notation of the question we get $z_t := \frac{Z_t}{Z_{t-1}}$, and
+    therefore the normalized weights have expectation $1$.
+    We now consider the \emph{variance} of the normalized weights $\frac{g_n^t}{z_t}$.
+    Playing the same trick with expectations under ELE we get
+    \begin{align}
+        \Var g^n_t &= \E \left[ \left(\frac{g^n_t}{z_t} - 1\right)^2 \right] \\
+        &= \E_{\pi_{\beta_{t-1}}}
+        \left[ \left(\frac{\gamma_{\beta_{t}}(X_{t-1})/Z_t}
+        {\gamma_{\beta_{t-1}}(X_{t-1})/Z_{t-1}} - 1\right)^2 \right] \\
+        &=  \E_{\pi_{\beta_{t-1}}}
+        \left[ \left(\frac{\pi_{\beta_{t}}(X_{t-1})}
+        {\pi_{\beta_{t-1}}(X_{t-1})} - 1\right)^2 \right] \\
+        &= \chi^2(\pi_{\beta_t} \| \pi_{\beta_{t-1}})
+    \end{align}
+
+    Now that the hint is proven we may tackle the variance of the estimators.
+    We begin with AIS. Each particle is independent, so we just have to consider
+    a single particle going from start to finish. We begin by showing that the
+    AIS estimator is unbiased. We use ELE to get independence and split
+    up the expectation of the product as a product of expectations. This leaves
+    a telescoping product which can be reduced in terms of its first and
+    last terms.
+
+    \newcommand{\AIS}{{\text{AIS}}}
+    \begin{align}
+        \E \hat Z^n_{\AIS} &= 
+            \E \prod_{t=1}^T g^n_T \\
+        &= \prod_{t=1}^T \E g^n_T \\
+        &= \prod_{t=1^T} \frac{Z_T}{Z_{T-1}} \\
+        &= \frac{Z_T}{Z_0}
+    \end{align}
+    Assuming the refernece is normalized and that $Z_T := Z$ as in the
+    question, we see that for each particle the estimator $\hat Z^n_{\AIS}$
+    is unbiased. As an arithmetic mean of unbiased estimators, the overall 
+    estimator $\hat Z_\AIS$ is also unbiased.
+    
+    We now tackle the variance, again
+    independence lets us break up products of exepctations as expectations
+    of products. Further breaking up $Z = \prod_{t=1}^T z_t$ we get
+    \begin{align}
+        \E \left(\frac{{\hat Z}^{n}_\AIS}{Z}\right)^2 &=
+            \E \left(\prod_{t=1}^T \frac{g^n_t}{z_t} \right)^2 \\
+            &= \prod_{t=1}^T \left(\E {\frac{g_t^{n}}{z_t}}\right)^2 \\
+            &= \prod_{t=1}^T \Var \frac{g^n_t}{z_t} + \left(\E \frac{g^n_t}{z_t}\right)^2 \\
+            &= \prod_{t=1}^T \chi^2(\pi_{\beta_t}\| \pi_{\beta_{t-1}}) + 1 
+    \end{align}
+    Recognizing that each particle's path is independent, and letting
+    $D_t = \log\left(1+\chi^2(\pi_{\beta_t}\|\pi_{\beta_{t-1}})\right)$ we
+    see that the variance of the overall estimator is given by 
+    \begin{align}
+        \Var \left(\frac{{\hat Z}^{n}_\AIS}{Z}\right) &=
+           \frac{\prod_{t=1}^T \chi^2(\pi_{\beta_t}\| \pi_{\beta_{t-1}}) + 1 }{N}  \\
+           &= \frac{\exp\left(\sum_{t=1}^T D_t\right) - 1}{N}
+    \end{align}
+    
+    \newcommand{\SIR}{{\text{SIR}}}
+    Now we derive the variance for the noramlized SIR estimator
+    $\frac{\hat Z_\SIR}{Z}$. We begin by showing that it is unbiased, that
+    is $\E \hat Z_\SIR = Z$
+
+    We first introduce the notation $\hat R_t := \frac{1}{N}\sum_{n=1}^N g^n_t$
+    Note that $\hat Z_\SIR = \prod_{t=1}^T R_t$, and furthermore under ELE the
+    $R_t$ are independent for different $t$. We thus turn our attention to
+    computing the expectation and variance of each individual $\hat R_t$. Again
+    under ELE the individual $g^n_t$ are independent across $n$, and so the
+    previous results apply
+    \begin{align}
+        \E \hat R_t &= \E g^n_t  \\
+            &= z_t = \frac{Z_t}{Z_{t-1}}
+    \end{align}
+    And
+    \begin{align}
+        \Var \left(\frac{\hat R_t}{z_t}\right) &=
+            \frac 1 N \Var \left( \frac{g^n_t}{z_t}\right) \\
+            &= \frac {\chi^2(\pi_{\beta_t} \| \pi_{\beta_{t-1}})}{N}  \\
+            &= \frac{\exp(D_t) - 1}{N}
+    \end{align}
+    Given this, we can approach the overall estimator
+    \begin{align}
+        \E \hat Z_\SIR &= \E \prod_{t=1}^T R_t \\
+        &= \prod_{t=1}^T \E R_t \\
+        &= \prod_{t=1}^T z_t \\
+        &= \frac{Z_T}{Z_0} \\
+        &= Z
+    \end{align},
+    again assuming a normalized reference and ELE.
+    \begin{align}
+        \E\left( \frac{\hat Z_\SIR}{Z} \right)^2 &= 
+            \prod_{t=1}^T \Var \left( \frac{\hat R_t}{z_t} \right) + 1 \\
+            &= \prod_{t=1}^T \left(
+               \frac{\exp(D_t) - 1}{N} + 1
+            \right)
+    \end{align}.
+    Which gives the desired result
+    \begin{align}
+        \Var\left(\frac{\hat Z_\SIR}{Z} \right) &= 
+            \prod_{t=1}^T \left(
+               \frac{\exp(D_t) - 1}{N} + 1
+            \right) - 1 
+    \end{align}.
+    \item %b 
+    We use a quadratic approximation of $D_t$ based on the small-signal
+    quadratic approximation of the $\chi^2$-divergence. We let $u = t/T$
+    repersent our normalized index. Denote
+    $f(u') = \chi^2(\pi_{\beta_{t'}} \| \pi_{\beta_t})$, 
+    $\beta_{t'} = \varphi(u')$ and $\beta_t = \varphi(u)$,
+    and compute a Taylor
+    approximation around $u'= u$. First we evaluate
+    \[
+        f(u) = \chi^2(\pi_{\beta_t} \| \pi_{\beta_t}) = 0
+    \]
+    Taking derivatives and assuming sufficient regularity conditions are
+    satifies such that expectations and derivatives can be exchanged we find the
+    following. In the last line we use the fact that the expected value of the
+    Fisher score is 0.
+    \begin{align}
+        f'(u') &= \frac{\d}{\d u} \E_{\pi_{\beta_u}} \left[ \left(
+            \frac{\pi_{\beta_{u'}}}{\pi_{\beta_{u}}} - 1
+            \right)^2 \right] \\
+        &= \frac{\d}{\d u}\left( \E \left[ \left(
+            \frac{\pi_{\beta_{u'}}}{\pi_{\beta_{u}}}
+            \right)^2  - 1\right]\right) \\
+        &= \frac{\d}{\d t}\left( \E \left[ \left(
+            \frac{\pi_{\beta_{u'}}}{\pi_{\beta_{u}}}
+            \right)^2 \right] \right) \\ 
+        &=   \frac{\d}{\d t}\E \left[ \left(
+            \frac{\pi_{\beta_u'}}{\pi_{\beta_{u}}}
+            \right)^2 \right] \\
+        &= \E\left[2\left(
+            \frac{\pi_{\beta_u'}}{\pi_{\beta_{u}}}
+            \right)\left(\frac 1 {\pi_{\beta_u}}\right)
+            \left(\frac{\d \pi_{\beta_{u'}}}{\d \beta_{t'}}\right)
+            \frac{\d \beta_{u'}}{\d t'}\right] \\
+        &= 2\frac{\d \beta_{u'}}{\d t'}
+            \E\left[
+                \left(
+            \frac{\pi_{\beta_u'}}{\pi_{\beta_{u}}}
+            \right)\left(\frac 1 {\pi_{\beta_u}}\right)
+            \left(\frac{\d \pi_{\beta_{u'}}}{\d \beta_{t'}}\right)
+            \right] \\
+        f'(u) &= 
+            2\frac{\d \beta_{u'}}{\d t'}
+            \E\left[
+            \left(\frac 1 {\pi_{\beta_u}}\right)
+            \left(\frac{\d \pi_{\beta_u}}{\d \beta_u}\right)
+            \right]  \\
+            &= 2\frac{\d \beta_{u'}}{\d t'}\E\left[\frac{\d}{\d\beta_u}\log \pi_{\beta_t}\right] \\
+            &= 0
+    \end{align}
+    Taking another derivative with the product rule yields
+    \begin{align}
+        f''(u') &= 
+            2\left(\frac{\d \beta_{u'}}{\d u'}\right)^2 \E
+            \left[
+                \left(
+                    \frac 1 {\pi_{\beta_u}^2}
+                \right)
+                \left(
+                    \frac {\d \pi_{\beta_{u'}}}{\d \beta_{u'}}
+                \right)^2
+                + 
+                \left(\frac{\pi_{\beta_{u'}}}{\pi_{\beta_u}^2}\right)
+                \left(\frac{\d^2 \pi_{\beta_{u'}}}{\d \beta_{u'}}\right)
+            \right]
+    \end{align}
+    Note that similar to the Fisher score, the second summand has expectation
+    zero at $\beta_{t'} = \beta_t$
+    \begin{align}
+        \int \pi_{\beta_u}\left(\frac{\pi_{\beta_{u}}}{\pi_{\beta_t}^2}\right)
+        \frac{\d^2 \pi_{\beta_{u}}}{\d \beta_{u}} &= 
+            \frac{\d^2}{\d u^2} \int \pi_{\beta_u} \\
+        &= \frac{\d^2}{\d u^2} 1 \\
+        &= 0
+    \end{align}
+    Therefore we get
+    \begin{align}
+        f''(u) &= 
+            2\left(\frac{\d \beta_{u}}{\d u}\right)^2 \E \left[
+                \left(
+                    \frac 1 {\pi_{\beta_u}^2}
+                \right)
+                \left(
+                    \frac {\d \pi_{\beta_{u}}}{\d \beta_{u}}
+                \right)^2 
+            \right] \\
+            &=  2\left(\frac{\d \beta_{u}}{\d u}\right)^2 I(\beta_u)
+    \end{align}
+    Combining these derivative and recalling that
+    $\frac{d}{\d u}\beta_u = \dot\varphi(u)$ gives small scale approximation
+    \[
+        \chi^2 (\pi_{\beta_{u'}} \| \pi_{\beta_u}) 
+        = \dot\varphi(u)^2 I(\beta_u)(u'-u)^2 + o((u'- u)^3)
+    \]
+    For our fixed $t$ schedule, we find $u'-u = \frac 1 T$ and so we get
+     \[
+        \chi^2 (\pi_{\beta_{u'}} \| \pi_{\beta_u}) 
+        = \dot\varphi(t)^2 I(\beta_u)T^{-2} + o(T^{-3})
+    \]
+
+    Furthermore we use the following small-scale functional approximations near
+    $x = 0$ to
+    get an overall approximation of the variance terms
+    \begin{align}
+        \log(1+x) &= x + o(x^2) \\
+        \exp(x)-1 &= x + o(x^2)
+    \end{align}
+
+    Thus we find
+    \[
+        D_t = \dot\varphi\left(\frac t T\right)^2 I(\beta_t)T^{-2} + o(T^{-3})
+    \]
+    Assuming appropriate regularity conditions (e.g. uniform continuity of
+    $I(\beta)$)
+    \begin{align}
+        \sum_{t=1}^T D_t &= 
+            \frac 1 T \sum_{t=1}^T \dot\varphi(u)^2 I(\varphi(u))\frac 1 T + o(T^{-2}) \\
+            &= \frac 1 T \int_{0}^{1} I(\varphi(u))\dot\varphi(u)^2 \d u + o(T^{-2})
+    \end{align}
+    This gives 
+    \begin{align}
+        \exp\left(\sum_{t=1}^T D_t \right) - 1 &=
+            \frac 1 T \int_{0}^{1} I(\varphi(u))\dot\varphi(u)^2 \d u + o(T^{-2}) 
+    \end{align}
+    And hence building on previous results
+    \begin{align}
+        T\Var \left[\frac{\hat Z_\AIS}{Z}\right] &= 
+            \frac 1 N \int_{0}^{1} I(\varphi(u))\dot\varphi(u)^2 \d u + o(N^{-1}T^{-1})
+    \end{align}
+    Which in the limiting case with fixed $N$ gives
+    \[
+        \lim_{T \to \infty} T\Var \left[\frac{\hat Z_\AIS}{Z}\right] = 
+            \frac 1 N \int_{0}^{1} I(\varphi(u))\dot\varphi(u)^2 \d u = 
+            \frac{E[\varphi]}{N}
+    \]
+
+    For SIR the product can be turned into a sum using logarithms hence
+    \begin{align}
+        \prod_{t=1}^T \left(1 + \frac{\exp(D_t)-1}{N}\right) - 1
+        &= \exp\left(\sum_{t=1}^T 
+            \log\left(1 + \frac{\exp(D_t)-1}{N} \right)
+            \right) - 1
+    \end{align}
+    Using our above small-scale approximations we get
+    \[
+        \exp(D_t) - 1 =  \dot\varphi\left(\frac t T\right)^2 I(\beta_t)T^{-2} + o(T^{-3})
+    \]
+    And 
+    \[
+        \log\left( 1 + \frac{\dot\varphi\left(\frac t T\right)^2 I(\beta_t)T^{-2} + o(T^{-3})}{N}\right) = 
+        \frac 1 N\dot\varphi\left(\frac t T\right)^2 I(\beta_t)T^{-2} + o(N^{-1}T^{-3})
+    \]
+    Then
+    \[
+        \sum_{t=1}^T
+             \left[ \frac 1 N\dot\varphi\left(\frac t T\right)^2 I(\beta_t)T^{-2} + o(N^{-1}T^{-3})\right]
+            =  \frac 1 {NT} \int_0^1 I(\varphi(u))\dot\varphi(u)^2 \d u
+                + o(N^{-1}T^{-2})
+    \]
+    So pulling it all together with the $\exp$ identity
+    \[
+        \prod_{t=1}^T \left(1 + \frac{\exp(D_t)-1}{N}\right) - 1 =
+         \frac 1 {NT} \int_0^1 I(\varphi(u))\dot\varphi(u)^2 \d u
+                + o(N^{-1}T^{-2}) 
+    \]
+    Again, using this to analyze the variance of SIR we get
+    \[
+        T\Var \left[ \frac{\hat Z_\SIR}{Z} \right] = 
+         \frac 1 {N} \int_0^1 I(\varphi(u))\dot\varphi(u)^2 \d u
+                + o(N^{-1}T^{-1})
+    \]
+    or in the asymptotic case of fixed $N$
+    \[
+        \lim_{T \to \infty} T\Var \left[ \frac{\hat Z_\SIR}{Z} \right] = 
+         \frac 1 {N} \int_0^1 I(\varphi(u))\dot\varphi(u)^2 \d u = 
+         \frac{E[\varphi]}{N} 
+    \]
+    
+    
+    % We consider a local linear approximation of $\exp(D_t)$. That is, fixing
+    % $\beta_t$ we consider a linear approximation of 
+    % $f(t') = 1 + \chi^2 ( \pi_{{t'}} \| \pi_{\beta_{t}})$
+    % Firstly we evaluate at $t'=0$, in this case
+    % $\chi^2 (\pi_{\beta_t} \| \pi_{\beta_t}) = 0$ so 
+    % $f(t) = 0$. Before taking the derivative, we simplify the expression.
+    % We see 
+    % \begin{align}
+    %     1 + \chi^2 ( \pi_{\beta_{t'}} \| \pi_{\beta_{t}}) &=
+    %     1 + \E_{\pi_\beta}
+    %         \left( \frac{\d \pi_{\beta_{t'}}}{\d \pi_{\beta_t}} - 1\right)^2 \\
+    %     &= \E_{\pi_{\beta_t}} \left( \frac{\d \pi_{\beta_{t'}}}{\d \pi_{\beta_t}} \right)^2 
+    % \end{align}
+    % Taking derivatives and assuming that sufficient regularity conditions are
+    % satisfied such that we can exchange expectation and differentiation, and
+    % that the Fisher score exists and is finite we see
+    % \begin{align}
+    %     f'(t') &= \frac{\d}{\d t'}  \E_{\pi_{\beta_t}} \left( \frac{\d \pi_{{t'}}}{\d \pi_{\beta_t}} \right)^2 \\
+    %     &= \E_{\pi_{\beta_t}}
+    %     \left[ \frac{\d}{\d t'}  \left(\frac{\d \pi_{\beta_{t'}}}{\d \pi_{\beta_t}} \right)^2 \right] \\
+    %     &= \E_{\pi_{\beta_t}}
+    %     \left[
+    %         2 \left(\frac{\d \pi_{\beta_{t'}}}{\d \pi_{\beta_t}}\right)
+    %     \right] 
+    % \end{align}
+
+    \item % c
+    Equality is immediate. Taking $\varphi(u) = F^{-1}(\Lambda u)$ and using the
+    Fundamental Theorem of Calculus we get
+    \begin{align}
+        F(\varphi(u)) &= \Lambda u \\
+        F'(\varphi(u))\dot\varphi(u) &= \Lambda \\
+        \sqrt{I(\varphi(u))}\dot\varphi(u) &= \Lambda \\
+        I(\varphi(u))\dot\varphi(u)^2 &= \Lambda \\
+        E[\varphi] &= \int_0^1 I(\varphi(u))\dot\varphi(u)^2 \d u \\
+            &= \int_0^1 \Lambda^2 \d u  \\
+            &= \Lambda^2
+    \end{align}
+    Inequality can be shown by Jensen's. Note that using a $u$-subsitution
+    \begin{align}
+        \int_0^1 \sqrt{I(\varphi(u))}\dot\varphi(u) \d u &= 
+            \int_0^1 \sqrt{I(\beta)}\d \beta \\
+            &= \Lambda
+    \end{align}
+    We apply Jensen's inequality for $\psi(x)=x^2$. This is a convex function
+    so we get
+    \begin{align}
+        \int_0^1 I(\varphi(u))\dot\varphi(u)^2 \d u &= 
+            \int_0^1 \left(\sqrt{I(\varphi(u))\dot\varphi(u)}\right)^2 \d u \\
+            &\geq \left[ \int_0^1 \sqrt{I(\varphi(u))\dot\varphi(u)} \d u \right]^2 \\
+            &= \Lambda^2
+    \end{align}
+    Taken together these gives us a few insights for the design of AIS and SIR
+    practice. Firstly, from results in (a) we see that the \emph{importance of
+    annealing}, since without annealing the difficulty of our problem is
+    exponential in the divergence between the two distributions. Results in 
+    (b) confirm that adding more annealing layers reduces the variance of our
+    estimators, and moreover in the large $T$ regime it does so 
+    \emph{linearly in 
+    $T$}. It is no, surprise, but we confirm as well that it also does so
+    linearly in $N$. Thus either of these knobs can be turned to give us lower
+    variance. Furthermore in the large $T$ regime both \emph{AIS and SIR are equally
+    asymptotically efficient}. Finally section (c) discusses optimal annealing
+    schedules for large $T$. The optimal schedule is one which has
+    \emph{unit speed} in terms of Fisher-Rao distance (recalling that the Fisher
+    information gives us the metric tensor).
+\end{enumerate}
+
+\section{Problem 2}
+\begin{enumerate}
+    \item % a
+    In this case the linear path is given by 
+    % We first derive the Fisher information. 
+    % \begin{align}
+    %     \ell(\mu) &= \log \Norm(x; \mu, \sigma^2) \\
+    %         &= -\frac 1 2 \log(2\pi\sigma^2) - \frac 1 2 \frac{(x-\mu)^2}{\sigma^2} \\
+    %     \frac{\partial \ell}{\partial \mu} &=
+    %         -\frac{(x-\mu)}{\sigma^2} \\
+    %     \frac{\partial^2 \ell}{\partial \mu^2} &= \frac{1}{\sigma^2} \\
+    %     I(\mu) = \E\frac{\partial^2 \ell}{\partial \mu^2} &= \frac{1}{\sigma^2}
+    % \end{align}
+    % Now 
+    \item %b 
+    We derive the Fisher information for $\sigma^2$ fixing $\mu$ and using that
+    $\E X = \mu$
+    \begin{align}
+        \frac{\partial \ell}{\partial \sigma^2} &=
+            -\frac 1 {2\sigma^2} + \frac 1 2 \frac{(x-\mu)^2}{\sigma^4} \\
+        \frac{\partial \ell^2}{{\partial \sigma^2}^2} &=
+            \frac{1}{2\sigma^4} - \frac{(x-\mu)^2}{\sigma^6} \\
+        I(\sigma^2) &=
+            \frac{1}{2\sigma^4}
+    \end{align}
+
+\end{enumerate}
+\end{document}
