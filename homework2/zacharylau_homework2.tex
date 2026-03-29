@@ -51,10 +51,12 @@
              {η²}{{$\eta^2$}}{2}
              {r̂}{$\hat r$}{1}
              {Δ}{$\Delta$}{1}
+             {Λ}{$\Lambda$}{1}
+             {∞}{$\infty$}{1}
 }
 
 \begin{document}
-\title{STAT 547E - Homework 1}
+\title{STAT 547E - Homework 2}
 \author{Zachary Lau}
 \date{\today}
 \maketitle
@@ -76,8 +78,8 @@
             \frac{\pi_{\beta_{t}}(x_{t-1}) Z_t}{\pi_{\beta_{t-1}}(x_{t-1}) Z_{t-1}} \\ 
         &= \frac{Z_t}{Z_{t-1}} 
     \end{align}
-    In the notation of the question we get $z_t := \frac{Z_t}{Z_{t-1}}$, and
-    therefore the normalized weights have expectation $1$.
+    As in the question defintion, set $z_t := \frac{Z_t}{Z_{t-1}}$. 
+    Therefore the normalized weights have expectation $1$.
     We now consider the \emph{variance} of the normalized weights $\frac{g_n^t}{z_t}$.
     Playing the same trick with expectations under ELE we get
     \begin{align}
@@ -91,52 +93,59 @@
         &= \chi^2(\pi_{\beta_t} \| \pi_{\beta_{t-1}})
     \end{align}
 
-    Now that the hint is proven we may tackle the variance of the estimators.
+    \newcommand{\AIS}{{\text{AIS}}}
+
+    Now that the hint is proven, we may tackle the variance of the estimators.
     We begin with AIS. Each particle is independent, so we just have to consider
-    a single particle going from start to finish. We begin by showing that the
+    a single particle going from start to finish. We denote this particles
+    estimate of the normalizing constant $\hat Z^{n}_\AIS$. We begin by showing that the
     AIS estimator is unbiased. We use ELE to get independence and split
     up the expectation of the product as a product of expectations. This leaves
     a telescoping product which can be reduced in terms of its first and
     last terms.
 
-    \newcommand{\AIS}{{\text{AIS}}}
     \begin{align}
         \E \hat Z^n_{\AIS} &= 
             \E \prod_{t=1}^T g^n_T \\
         &= \prod_{t=1}^T \E g^n_T \\
-        &= \prod_{t=1^T} \frac{Z_T}{Z_{T-1}} \\
+        &= \prod_{t=1}^T \frac{Z_T}{Z_{T-1}} \\
         &= \frac{Z_T}{Z_0}
     \end{align}
-    Assuming the refernece is normalized and that $Z_T := Z$ as in the
+    Assuming the reference is normalized, and that $Z_T := Z$ as in the
     question, we see that for each particle the estimator $\hat Z^n_{\AIS}$
-    is unbiased. As an arithmetic mean of unbiased estimators, the overall 
+    is unbiased for $Z$. As an arithmetic mean of unbiased estimators, the overall 
     estimator $\hat Z_\AIS$ is also unbiased.
     
     We now tackle the variance, again
-    independence lets us break up products of exepctations as expectations
+    independence lets us break up products of expectations as expectations
     of products. Further breaking up $Z = \prod_{t=1}^T z_t$ we get
     \begin{align}
         \E \left(\frac{{\hat Z}^{n}_\AIS}{Z}\right)^2 &=
             \E \left(\prod_{t=1}^T \frac{g^n_t}{z_t} \right)^2 \\
-            &= \prod_{t=1}^T \left(\E {\frac{g_t^{n}}{z_t}}\right)^2 \\
-            &= \prod_{t=1}^T \Var \frac{g^n_t}{z_t} + \left(\E \frac{g^n_t}{z_t}\right)^2 \\
-            &= \prod_{t=1}^T \chi^2(\pi_{\beta_t}\| \pi_{\beta_{t-1}}) + 1 
+            &= \prod_{t=1}^T \E\left({\frac{g_t^{n}}{z_t}}\right)^2 \\
+            &= \prod_{t=1}^T \left(\Var \frac{g^n_t}{z_t} + \left(\E \frac{g^n_t}{z_t}\right)^2\right)\\
+            &= \prod_{t=1}^T \left(\chi^2(\pi_{\beta_t}\| \pi_{\beta_{t-1}}) + 1 \right)
     \end{align}
     Recognizing that each particle's path is independent, and letting
     $D_t = \log\left(1+\chi^2(\pi_{\beta_t}\|\pi_{\beta_{t-1}})\right)$ we
     see that the variance of the overall estimator is given by 
     \begin{align}
-        \Var \left(\frac{{\hat Z}^{n}_\AIS}{Z}\right) &=
-           \frac{\prod_{t=1}^T \chi^2(\pi_{\beta_t}\| \pi_{\beta_{t-1}}) + 1 }{N}  \\
+        \Var \left(\frac{{\hat Z}_\AIS}{Z}\right) &= 
+            \frac 1 N \Var\left[\frac{\hat Z^{n}_\AIS}{Z}\right] \\
+            &= \frac 1 N \left[ \E \left[\left(\frac{\hat Z^{n}_\AIS}{Z}\right)^2\right] 
+                - \E \left[ \frac{\hat Z^{n}_\AIS}{Z}\right]^2 \right] \\
+            &= 
+           \frac{\prod_{t=1}^T \left(\chi^2(\pi_{\beta_t}\| \pi_{\beta_{t-1}}) + 1 \right) - 1}{N}  \\
            &= \frac{\exp\left(\sum_{t=1}^T D_t\right) - 1}{N}
     \end{align}
     
     \newcommand{\SIR}{{\text{SIR}}}
-    Now we derive the variance for the noramlized SIR estimator
+    Now we derive the variance for the normalized SIR estimator
     $\frac{\hat Z_\SIR}{Z}$. We begin by showing that it is unbiased, that
     is $\E \hat Z_\SIR = Z$
 
-    We first introduce the notation $\hat R_t := \frac{1}{N}\sum_{n=1}^N g^n_t$
+    We first introduce the notation $\hat R_t := \frac{1}{N}\sum_{n=1}^N g^n_t$ to
+    indicate the $t$-th ratio.
     Note that $\hat Z_\SIR = \prod_{t=1}^T R_t$, and furthermore under ELE the
     $R_t$ are independent for different $t$. We thus turn our attention to
     computing the expectation and variance of each individual $\hat R_t$. Again
@@ -153,7 +162,8 @@
             &= \frac {\chi^2(\pi_{\beta_t} \| \pi_{\beta_{t-1}})}{N}  \\
             &= \frac{\exp(D_t) - 1}{N}
     \end{align}
-    Given this, we can approach the overall estimator
+    Given this, we can approach the overall estimator using independence under
+    our ELE assumption
     \begin{align}
         \E \hat Z_\SIR &= \E \prod_{t=1}^T R_t \\
         &= \prod_{t=1}^T \E R_t \\
@@ -164,7 +174,7 @@
     again assuming a normalized reference and ELE.
     \begin{align}
         \E\left( \frac{\hat Z_\SIR}{Z} \right)^2 &= 
-            \prod_{t=1}^T \Var \left( \frac{\hat R_t}{z_t} \right) + 1 \\
+            \prod_{t=1}^T \left( \Var \left( \frac{\hat R_t}{z_t} \right) + 1 \right) \\
             &= \prod_{t=1}^T \left(
                \frac{\exp(D_t) - 1}{N} + 1
             \right)
@@ -180,10 +190,12 @@
     We use a quadratic approximation of $D_t$ based on the small-signal
     quadratic approximation of the $\chi^2$-divergence. We let $u = t/T$
     repersent our normalized index. Denote
-    $f(u') = \chi^2(\pi_{\beta_{t'}} \| \pi_{\beta_t})$, 
-    $\beta_{t'} = \varphi(u')$ and $\beta_t = \varphi(u)$,
-    and compute a Taylor
-    approximation around $u'= u$. First we evaluate
+    $f(u') = \chi^2(\pi_{\beta_{t'}} \| \pi_{\beta_t})$ the chi-squared divergence
+    to the next step and 
+    $\beta_{t'} = \varphi(u')$ and $\beta_t = \varphi(u)$ the inverse temperature
+    at the next step.
+    We compute a Taylor
+    approximation around $u'= u$. First we evaluate at $u' = u$
     \[
         f(u) = \chi^2(\pi_{\beta_t} \| \pi_{\beta_t}) = 0
     \]
@@ -198,10 +210,10 @@
         &= \frac{\d}{\d u}\left( \E \left[ \left(
             \frac{\pi_{\beta_{u'}}}{\pi_{\beta_{u}}}
             \right)^2  - 1\right]\right) \\
-        &= \frac{\d}{\d t}\left( \E \left[ \left(
+        &= \frac{\d}{\d u}\left( \E \left[ \left(
             \frac{\pi_{\beta_{u'}}}{\pi_{\beta_{u}}}
             \right)^2 \right] \right) \\ 
-        &=   \frac{\d}{\d t}\E \left[ \left(
+        &=   \frac{\d}{\d u}\E \left[ \left(
             \frac{\pi_{\beta_u'}}{\pi_{\beta_{u}}}
             \right)^2 \right] \\
         &= \E\left[2\left(
@@ -242,9 +254,9 @@
             \right]
     \end{align}
     Note that similar to the Fisher score, the second summand has expectation
-    zero at $\beta_{t'} = \beta_t$
+    zero at $\beta_{u'} = \beta_u$
     \begin{align}
-        \int \pi_{\beta_u}\left(\frac{\pi_{\beta_{u}}}{\pi_{\beta_t}^2}\right)
+        \int \pi_{\beta_u}\left(\frac{\pi_{\beta_{u}}}{\pi_{\beta_u}^2}\right)
         \frac{\d^2 \pi_{\beta_{u}}}{\d \beta_{u}} &= 
             \frac{\d^2}{\d u^2} \int \pi_{\beta_u} \\
         &= \frac{\d^2}{\d u^2} 1 \\
@@ -272,7 +284,7 @@
     For our fixed $t$ schedule, we find $u'-u = \frac 1 T$ and so we get
      \[
         \chi^2 (\pi_{\beta_{u'}} \| \pi_{\beta_u}) 
-        = \dot\varphi(t)^2 I(\beta_u)T^{-2} + o(T^{-3})
+        = \dot\varphi(u)^2 I(\beta_u)T^{-2} + o(T^{-3})
     \]
 
     Furthermore we use the following small-scale functional approximations near
@@ -285,7 +297,7 @@
 
     Thus we find
     \[
-        D_t = \dot\varphi\left(\frac t T\right)^2 I(\beta_t)T^{-2} + o(T^{-3})
+        D_t = \dot\varphi(u)^2 I(\beta_u)T^{-2} + o(T^{-3})
     \]
     Assuming appropriate regularity conditions (e.g. uniform continuity of
     $I(\beta)$)
@@ -387,7 +399,7 @@
         F(\varphi(u)) &= \Lambda u \\
         F'(\varphi(u))\dot\varphi(u) &= \Lambda \\
         \sqrt{I(\varphi(u))}\dot\varphi(u) &= \Lambda \\
-        I(\varphi(u))\dot\varphi(u)^2 &= \Lambda \\
+        I(\varphi(u))\dot\varphi(u)^2 &= \Lambda^2 \\
         E[\varphi] &= \int_0^1 I(\varphi(u))\dot\varphi(u)^2 \d u \\
             &= \int_0^1 \Lambda^2 \d u  \\
             &= \Lambda^2
@@ -406,7 +418,7 @@
             &\geq \left[ \int_0^1 \sqrt{I(\varphi(u))\dot\varphi(u)} \d u \right]^2 \\
             &= \Lambda^2
     \end{align}
-    Taken together these gives us a few insights for the design of AIS and SIR
+    Taken together, these gives us a few insights for the design of AIS and SIR
     practice. Firstly, from results in (a) we see that the \emph{importance of
     annealing}, since without annealing the difficulty of our problem is
     exponential in the divergence between the two distributions. Results in 
@@ -425,18 +437,50 @@
 \section{Problem 2}
 \begin{enumerate}
     \item % a
-    In this case the linear path is given by 
-    % We first derive the Fisher information. 
-    % \begin{align}
-    %     \ell(\mu) &= \log \Norm(x; \mu, \sigma^2) \\
-    %         &= -\frac 1 2 \log(2\pi\sigma^2) - \frac 1 2 \frac{(x-\mu)^2}{\sigma^2} \\
-    %     \frac{\partial \ell}{\partial \mu} &=
-    %         -\frac{(x-\mu)}{\sigma^2} \\
-    %     \frac{\partial^2 \ell}{\partial \mu^2} &= \frac{1}{\sigma^2} \\
-    %     I(\mu) = \E\frac{\partial^2 \ell}{\partial \mu^2} &= \frac{1}{\sigma^2}
-    % \end{align}
-    % Now 
+    Firstly we show that the linear path consists of mean shifted normals. This
+    is naturally given that the normal is an exponential family distribution,
+    however for completeness we list out the details. Here
+    we take the linear path to be given by
+    \[
+        \pi_\beta(x) = \frac{1}{Z(\beta)}
+        \exp\left(-\frac {1}{2\sigma^2}\left(
+            (1-\beta) x^2 + \beta(x-\mu)^2
+        \right)\right)
+    \]
+    The exponent then becomes 
+    \begin{align}
+        -\frac 1 {2\sigma^2}\left(
+            x^2 - 2x\mu\beta + \beta\mu^2
+        \right)
+    \end{align}
+    Which we recognize as (up to a constant in $x$) the log-likelihood of a
+    normal with mean $\mu\beta$ and variance $\sigma^2$.
+    We next derive the Fisher information (working now in $\mu$ again and
+    not $\beta$) 
+    \begin{align}
+        \ell(\mu) &= \log \Norm(x; \mu, \sigma^2) \\
+            &= -\frac 1 2 \log(2\pi\sigma^2) - \frac 1 2 \frac{(x-\mu)^2}{\sigma^2} \\
+        \frac{\partial \ell}{\partial \mu} &=
+            -\frac{(x-\mu)}{\sigma^2} \\
+        \frac{\partial^2 \ell}{\partial \mu^2} &= \frac{1}{\sigma^2} \\
+        I(\mu) = \E\frac{\partial^2 \ell}{\partial \mu^2} &= \frac{1}{\sigma^2}
+    \end{align}
+    In one dimension the path integral is just a normal integral up to a sign. 
+    We get
+    \begin{align}
+        \Lambda &= \left| \int_{\mu_0}^{\mu_1} \sqrt{I(\mu)} \d \mu \right| \\
+            &= \left| \int_{\mu_0}^{\mu_1} \frac{1}{\sigma} \d u \right| \\
+            &= \frac{|\mu_1-\mu_0|}{\sigma}
+    \end{align}
     \item %b 
+    Similarly to the previous section we seee that the linear path corresponds
+    to simply varying $\sigma$ since 
+    \begin{align}
+        \frac{(1-\beta)}{2\sigma_0^2} (x-\mu)^2 + \frac{\beta}{2\sigma_1^2} (x-\mu)^2 
+        &= 
+        \frac 1 2(x-\mu)^2\left(\frac {1-\beta}{\sigma_0^2} + \frac {\beta}{\sigma_1^2} \right)
+    \end{align}
+    In essence we are linearly varying the precision.
     We derive the Fisher information for $\sigma^2$ fixing $\mu$ and using that
     $\E X = \mu$
     \begin{align}
@@ -447,6 +491,257 @@
         I(\sigma^2) &=
             \frac{1}{2\sigma^4}
     \end{align}
+    Taking the one-dimensional integral again we find
+    \begin{align}
+        \int_{\sigma_0^2}^{\sigma_1^2} \sqrt{I(\sigma^2)} \d \sigma^2 
+            &= \int_{\sigma_0^2}^{\sigma_1^2} \frac{1}{\sqrt{2}\sigma^2} \d \sigma^2 \\
+            &= \frac{1}{\sqrt{2}}\left[\log \sigma_1^2 - \log \sigma_0^2 \right] \\
+            &= \sqrt{2} \left[ \log \sigma_1 - \log \sigma_0 \right]
+    \end{align}
+    Taking the sign into account for the path integral we get the Fisher-Rao
+    length of the path is
+    \begin{align}
+        \Lambda &= \left| \sqrt{2} \left[ \log \sigma_1 - \log \sigma_0 \right] \right| \\
+            &= \sqrt{2} \left| \log \frac{\sigma_0}{\sigma_1} \right| 
+    \end{align}
+    \item % c 
+    We can use the piecewise linear annealing path
+    \begin{itemize}
+        \item Move $\sigma$ to $\sigma' = |\mu_1 - \mu_0|$
+        \item Increase $\mu$ from $\mu_0$ to $\mu_1$
+        \item Move $\sigma$ back to it's starting point
+    \end{itemize}
+    Note that if $\sigma$ is already greater than $z = |\mu_1 - \mu_0|$ in 
+    practice it would be better not to move it, but we use this construction for
+    the theoretical analysis.
+    Given the calculations in the previous section of the question, the lengths
+    of each section of the path are
+    \begin{itemize}
+        \item $\Lambda_1 = \sqrt{2}\left|\log \frac{z}{\sigma}\right|$
+        \item $\Lambda_2 = \frac{|\mu_1 - \mu_0|}{\sigma'} = 1$
+        \item $\Lambda_3 = \sqrt{2}\left|\log \frac{z}{\sigma}\right|$
+    \end{itemize}
+    The total length is $\Lambda = \Lambda_1 + \Lambda_2 + \Lambda_3 = 2\sqrt{2}\left|\log \frac{z}{\sigma}\right| + 1$
+    which is $O(\log z)$ as desired.
+    \item % d
+    This result is useful for annealing algorithms because the Fisher-Rao length
+    specifies the difficulty of an annealing path, with higher $\Lambda$
+    corresponding to a harder path. This has many realizable effects, for
+    example for NRPT with a dense enough annealing schedule, the round trip rate
+    is inversely proportional to lambda ($\text{RR} = \frac{1}{2 + \Lambda}$),
+    and for AIS and SMC, the variance of our estimators is lower bounded by
+    $\frac 1 T \Lambda^2$, as seen in question 1. Thus, if we can choose a smarter annealing
+    path we can improve the maximum performance of our annealing algorithms.
+
+    In this toy example, we see that the linear path between two
+    distributions is not always the shortest path. Indeed, changing just
+    $\mu$ results in an $O(z)$ path length, whereas by changing the variance
+    first we can get an $O(\log z)$ total path length, an impressive improvement!
+% TODO - show the linear path just changes one parameter at a time
+\section{Problem 3}
+\begin{enumerate}
+    \item % a
+    We start by deriving the incremental weights for our linear path. Note that
+    we let
+    \begin{align}
+        \log \gamma(x) &=
+            -\frac 1 2 \left((1-\beta)x^2 + \beta (x - \mu) ^2 \right) 
+            - \frac 1 2 \log(2\pi) \\
+            &= -\frac 1 2 \left( x^2 - 2x\mu\beta + \beta\mu^2\right)
+            - \frac 1 2 \log(2\pi)
+    \end{align}
+    Incrementing $\beta$ by $\Delta\beta$ gives weights of 
+    \[
+        x\mu\Delta\beta - \frac 1 2 \Delta\beta \mu^2 = 
+            \Delta\beta \left(x\mu - \frac 1 2 \mu^2 \right)
+    \]
+    One thing to note about this formulation is that while $Z(0) = Z(1) = 1$,
+    this is not actually true of the intermediary distributions due to the 
+    missing $\exp\left(\beta^2 \mu^2 - \beta \mu^2\right)$ factor required to
+    complete the square. However, this intermediary rescaling does not affect
+    our final answer.
+
+    Using the template code and Listing \ref{lst:ais} we run 200 iterations of
+    AIS with $N=100$ particles for various numbers of intermediate
+    distributions.  Results are show in Figure \ref{fig:ais}. Ribbon bands show
+    $\pm$ one standard deviation of the estimates of $\log Z$.
+    
+    There are a few things to note about this plot. Firstly, in theory each of
+    these estimators is unbiased, however, the figures do not show this for
+    small $T$. This happens because the estimators also have heavy right-tails.
+    Thus without very large sample sizes we are actually observing the
+    \emph{modal} response. Under ELE, the modal response doesn't approach the
+    true value ($0$) until around $T=\Lambda$. Furthermore, we notice that with
+    poor mixing (low $k$), the estimates are much worse than the ELE case. We
+    need around $k=20$ before we approach the ELE baseline.  In the worst case
+    $(k=1)$ this takes until after $T = \Lambda^2$, which represents more than
+    a $10 \times$ slowdown. Finally all ribbos appear to be shrinking as
+    $T$ increases. This
+    agrees with our theoretical results which indicate the variance should
+    decrease with $T$.
+
+    \begin{lstlisting}[language=Julia, caption={Code for AIS}, label={lst:ais}]
+ks  = [1, 5, 20, 100]
+N = 100
+μ = 10
+σ_prop = 0.5
+seed = 42
+# From previous work we know Λ is 10, thus we don't really need
+# that many levels
+T_grid = [1, 2, 3, 4, 5, 10, 15, 20, 25, 50, 75, 100, 125]
+
+function experiment(rwm_func, ele_func)
+    all_means = []
+    all_stds = []
+    labels = []
+
+    # Finite walk RWM
+    for k in ks
+        est_fn(T) = rwm_func(μ, T, N, k, σ_prop; rng=Random.default_rng(seed))
+        means, stds = logz_stats(est_fn, T_grid, M_REP)
+        push!(all_means, means)
+        push!(all_stds, stds)
+        push!(labels, "k = $k")
+    end
+
+    # Compute ELE estimate
+    est_ele(T) = ele_func(μ, T, N; rng=Random.default_rng(seed))
+    ele_means, ele_stds = logz_stats(est_ele, T_grid, M_REP)
+
+    push!(all_means, ele_means)
+    push!(all_stds, ele_stds)
+    push!(labels, "k = ∞")
+
+    # plot(plots..., ylims=(-40, 5))
+
+    plots = []
+    # ymin = minimum([minimum(means .- stds) for (means, stds) in zip(all_means, all_stds)])
+    # ymax = maximum([maximum(means .+ stds) for (means, stds) in zip(all_means, all_stds)])
+    Λ = μ # see exercise 2
+
+    p = plot(
+        xlabel="log10 T",
+        ylabel="Estimate of log Z",
+    )
+
+    for (means, stds, label) in zip(all_means, all_stds, labels)
+        plot!(p,
+            log10.(T_grid),
+            means,
+            ribbon=stds,
+            alpha = 0.1,
+            lw = 2,
+            label = label
+        )
+        # push!(plots, p)
+    end
+    vline!(log10(Λ), label = "T=Λ")
+    vline!(2*log10(Λ), label= "T=Λ^2")
+    return p, all_means, all_stds, labels
+end
+    \end{lstlisting}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{ais.png}
+        \caption{Distribution of estimates of $\log Z$ for varying numbers of
+        temperature levels and local RWM steps for AIS. 
+        Ribbons represents
+        $\pm$ one empirical standard deviation.}
+        \label{fig:ais}
+    \end{figure}
+
+    \item % b
+    We repeat for SIR, with results in Figure \ref{fig:sir}. Resampling doesn't
+    change the $k$ value at which the ELE assumption kicks in, however it does
+    improve the rate at which the modal estimates approach the true value.
+    The standard deviations of the estimators are also smaller, as shown in 
+    Figure \ref{fig:ratios}.
+    
+    From this figure, we can see that the effect is
+    particularly pronounced around $T = \Lambda$, with some recovery as $T$
+    improves beyond this point. This recovery is expected from our asymptotic
+    analysis in question 1. For $T \approx \Lambda$ the difference is
+    more pronounced for smaller $k$. This can be explained because better mixing
+    moves more particles to higher density areas, which works synergistically
+    with SIR. However for $T \approx \Lambda^2$ the effect is actually more
+    pronounced for smaller $k$. One possible explanation is that for larger
+    $k$ both SIR and AIS are hitting their asymptotic limits, whereas for
+    smaller $k$ we can still observe finite effects.
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{sir.png}
+        \caption{Distribution of estimates of $\log Z$ for varying numbers of
+        temperature levels and local RWM steps for SIR. Ribbons represents
+        $\pm$ one empirical standard deviation.}
+        \label{fig:sir}
+    \end{figure}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{ratios.png}
+        \caption{Ratios of standard deviations of SIR and AIS estimators of 
+        log normalizing constants. Lower ratios indicate SIR is better.}
+        \label{fig:ratios}
+    \end{figure}
+    
+    \item %c 
+    Listing \ref{lst:budget} compares the variance of the estimators for
+    a fixed computational budget. Results are shown in Tables
+    \ref{tab:ais} and \ref{tab:sir}. For AIS the $k=1, T=2000$ sitation is
+    better than $k=20, T=100$, and ELE is the best. However, the standard
+    deviations are much closer than fixing $T$ and varying $k$ as we did
+    before.
+    
+    For SIR, ELE is much better, but $k=1, T=2000$ and $k=20, T=100$ are
+    similar to one anothere. It is possible that resampling compensates for poor mixing.
+    On the whole, SIR has smaller standard deviations than AIS, with
+    $k=1, T=2000$ and $k=20, T= 100$ for SIR being about the same as ELE
+    for AIS. This is generally what we expect based on our prevous results;
+    SIR performs better when we have a finite number of annealing levels,
+    even if the asymptotic behaviour is the same.
+
+    \begin{lstlisting}[language=Julia, caption={Fixed budget comparisons},
+        label={lst:budget}]
+function experiment2(rwm_func, ele_func)
+    seed = 42
+    all_means = []
+    all_stds = []
+    labels = []
+    for (k, T) in [(1, 2000), (20, 100)]
+        est_fn(T) = rwm_func(μ, T, N, k, σ_prop; rng=Random.default_rng(seed))
+        means, stds = logz_stats(est_fn, [T], M_REP)
+        push!(all_means, means[1])
+        push!(all_stds, stds[1])
+        push!(labels, "k = $k; T = $T")
+    end
+    est_ele(T) = ele_func(μ, T, N; rng=Random.default_rng(seed))
+    ele_means, ele_stds = logz_stats(est_ele, [100], M_REP)
+    push!(all_means, ele_means[1])
+    push!(all_stds, ele_stds[1])
+    push!(labels, "ELE; T = 100")
+    return all_means, all_stds, labels
+end
+    \end{lstlisting}
+
+    \begin{table}
+        \centering
+        \csvautotabular{"ais.csv"}
+        \caption{Fixed-Budget comparison of AIS estimators of normalizing constant.
+        The true value is 0. SE represents the standard deviation of the
+        standard deviation estimate.}
+        \label{tab:ais}
+    \end{table}
+
+    \begin{table}
+        \centering
+        \csvautotabular{"sir.csv"}
+        \caption{Fixed-Budget comparison of SIR estimators of normalizing constant.
+        The true value is 0. SE represents the standard deviation of the
+        standard deviation estimate.}
+        \label{tab:sir}
+    \end{table}
+\end{enumerate}
 
 \end{enumerate}
 \end{document}
